@@ -169,52 +169,33 @@ def assign_repair_shop(is_fraud: bool) -> str:
 
 def generate_narrative(row: pd.Series) -> str:
     is_fraud = str(row.get("fraud_reported", "N")).strip().upper() == "Y"
+    incident_type = str(row.get('incident_type', 'vehicle incident')).lower()
+    claim_amount = f"${row.get('injury_claim', 0)}"
 
-    fraud_instruction = (
-        "Subtly include these fraud indicators: "
-        "immediate specialist referral within 48 hours of the incident, "
-        "vague pre-existing symptom language ('aggravated a prior condition'), "
-        "and a specific dollar demand from the claimant."
-    ) if is_fraud else (
-        "Write as a genuine, straightforward description with no suspicious elements."
-    )
+    fraud_templates = [
+        "I was in a {incident} and felt fine initially, but the next morning I couldn't move my neck. A friend recommended I see a specialist immediately. I'm requesting {amount} for ongoing chiropractic care.",
+        "The {incident} aggravated a pre-existing soft tissue condition I had years ago. The clinic says I need months of therapy. My attorney is demanding {amount} to cover all anticipated treatments.",
+        "After the {incident}, I immediately sought out a specialist as advised by legal counsel. The pain is severe and non-specific. We calculate the damages at {amount} for medical expenses.",
+        "The collision was minor but caused severe whiplash. I was referred to a wellness center within 24 hours. The required therapy will cost {amount} and I need it expedited.",
+        "I sustained invisible but agonizing soft tissue damage during the {incident}. The clinic took X-rays but said I need specialized MRI scans. Total injury claim is exactly {amount}.",
+        "Following the {incident}, my attorney advised me to document every ache. It flared up an old back injury. I am claiming {amount} for the intensive rehabilitation program.",
+        "The {incident} seemed small but I developed migraines and back spasms. The specialist I was referred to says it's chronic. Seeking {amount} for the prescribed treatment plan."
+    ]
 
-    prompt = f"""Write a 2-3 sentence first-person insurance claim injury description.
+    clean_templates = [
+        "I was involved in a {incident} and suffered a broken wrist. I went to the ER and got a cast. The hospital bills total {amount}.",
+        "The {incident} resulted in a concussion. I was observed overnight at the local hospital and cleared. I am claiming {amount} to cover the out-of-pocket ER costs.",
+        "During the {incident}, the airbag deployed and fractured my nose. I had a minor surgery to set it. The total cost for the procedure and follow-up is {amount}.",
+        "I sustained a laceration on my forehead from the {incident} requiring 12 stitches. The urgent care bill came to {amount}.",
+        "My knee slammed into the dashboard during the {incident}. The orthopedic doctor confirmed a torn meniscus. Surgical repair and physical therapy is estimated at {amount}.",
+        "I have second-degree burns on my arm from the airbag deployment in the {incident}. The burn center treatment and bandages cost {amount}.",
+        "The {incident} caused a sprained ankle as I braced for impact. I bought a walking boot and crutches. Total expenses are {amount}."
+    ]
 
-Incident type: {row.get('incident_type', 'unknown')}
-Severity: {row.get('incident_severity', 'unknown')}
-Injury claim amount: ${row.get('injury_claim', 0)}
-Collision type: {row.get('collision_type', 'unknown')}
-Is fraudulent: {is_fraud}
-
-{fraud_instruction}
-
-Return ONLY the narrative text. No labels, no quotes, no prefixes."""
-
-    if not USE_GEMINI:
-        return (
-            f"I was involved in a {row.get('incident_type', 'vehicle incident')} "
-            f"resulting in {row.get('incident_severity', 'significant')} damage. "
-            f"I am seeking ${row.get('injury_claim', 0)} for medical expenses and lost wages."
-        )
-
-    try:
-        response = model.generate_content(prompt)
-        return response.text.strip()
-    except Exception as e:
-        error_msg = str(e)
-        if "429" in error_msg or "quota" in error_msg.lower():
-            print("\n[!] Hit Gemini rate limit. Sleeping for 30 seconds to let it cool down...")
-            time.sleep(30)
-            return "Narrative generation paused due to API limits."
-        
-        print(f"Gemini failed, using fallback...")
-        # prevent downstream explosions on nulls
-        return (
-            f"I was involved in a {row.get('incident_type', 'vehicle incident')} "
-            f"resulting in {row.get('incident_severity', 'significant')} damage. "
-            f"I am seeking ${row.get('injury_claim', 0)} for medical expenses and lost wages."
-        )
+    pool = fraud_templates if is_fraud else clean_templates
+    template = random.choice(pool)
+    
+    return template.format(incident=incident_type, amount=claim_amount)
 
 
 def enrich_dataset() -> pd.DataFrame:
@@ -281,8 +262,6 @@ def enrich_dataset() -> pd.DataFrame:
         if (i + 1) % 50 == 0:
             print(f"{i + 1}/1000 narratives generated...")
 
-        # Respect Gemini free tier rate limit (15 RPM), setting to 5s to be extremely safe (12 RPM)
-        time.sleep(5)
     df["injury_narrative"] = narratives
 
     df.to_csv(OUTPUT_CSV, index=False)
