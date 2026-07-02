@@ -1,7 +1,7 @@
 import { RecalledClaim } from "./types";
 
-const COGNEE_API_URL = process.env.COGNEE_API_URL || "http://localhost:8000";
-const DATASET_NAME = "claimtrace_claims";
+const COGNEE_API_URL = process.env.COGNEE_TENANT_URL || "http://localhost:8000";
+const DATASET_NAME = "claimtrace_clean";
 
 /**
  * Wrapper for the Cognee recall API
@@ -18,6 +18,7 @@ export async function cogneeRecall(queryText: string): Promise<RecalledClaim[]> 
       body: JSON.stringify({
         query: queryText,
         datasets: [DATASET_NAME],
+        search_type: "CHUNKS"
       }),
     });
 
@@ -27,8 +28,8 @@ export async function cogneeRecall(queryText: string): Promise<RecalledClaim[]> 
     }
 
     const data = await response.json();
-    // Assuming Cognee returns an array of matched nodes with these fields
-    return data.results || [];
+    // Cognee returns an array of objects containing search_result
+    return data[0]?.search_result || [];
   } catch (error) {
     console.error("Error communicating with Cognee API:", error);
     return [];
