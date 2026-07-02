@@ -25,7 +25,12 @@ load_dotenv()
 
 GEMINI_API_KEY    = os.environ["GEMINI_API_KEY"]
 COGNEE_TENANT_URL = os.environ["COGNEE_TENANT_URL"]
-COGNEE_API_KEY    = os.environ["COGNEE_API_KEY"]
+COGNEE_API_KEY    = os.environ.get("COGNEE_API_KEY", "")
+
+os.environ["LLM_API_KEY"] = GEMINI_API_KEY
+# Try to force Gemini if Cognee supports it, otherwise it might expect OpenAI
+os.environ["LLM_PROVIDER"] = "gemini" 
+os.environ["LLM_MODEL"] = "gemini-2.5-flash"
 
 INPUT_FILE = "data/Worksheet in Case Study question 2.xlsx"
 OUTPUT_CSV = "data/insurance_fraud_enriched.csv" # keeping as csv for easier sanity checks
@@ -271,13 +276,13 @@ def enrich_dataset() -> pd.DataFrame:
     return df
 
 
+import requests
+
 async def ingest_into_cognee(df: pd.DataFrame):
-    print("\nConnecting to Cognee Cloud...")
-    await cognee.serve(
-        url=COGNEE_TENANT_URL,
-        api_key=COGNEE_API_KEY,
-    )
-    print("Connected.")
+    print("\nConnecting to Cognee Cloud API...")
+    if not COGNEE_TENANT_URL or not COGNEE_API_KEY:
+        print("ERROR: COGNEE_TENANT_URL and COGNEE_API_KEY must be set in .env.local")
+        return
 
     print(f"\nIngesting {len(df)} claims into dataset '{DATASET}'...")
     print("Each claim is structured as a JSON string so Cognee can")
@@ -285,10 +290,9 @@ async def ingest_into_cognee(df: pd.DataFrame):
 
     success_count = 0
     error_count   = 0
+    memory_list   = []
 
     for i, (_, row) in enumerate(df.iterrows()):
-        # shoving everything into a single json blob
-        # cognee parses this internally to build the graph edges and vector embeddings
         claim_obj = {
             "claim_id":        str(row.get("policy_number", f"CLM-{i:05d}")),
             "ring_id":         str(row.get("ring_id")) if pd.notna(row.get("ring_id")) else None,
@@ -315,7 +319,6 @@ async def ingest_into_cognee(df: pd.DataFrame):
 
             "injury_narrative": str(row.get("injury_narrative", "")),
 
-            # model ground truth target
             "fraud_confirmed": str(row.get("fraud_reported", "N")).strip().upper() == "Y",
         }
 
@@ -332,23 +335,38 @@ async def ingest_into_cognee(df: pd.DataFrame):
             f"Full data: {json.dumps(claim_obj)}"
         )
 
+        memory_list.append(memory_text)
+
+    # We batch them in sets of 100 to avoid giant payloads
+    batch_size = 100
+    for i in range(0, len(memory_list), batch_size):
+        batch = memory_list[i:i+batch_size]
         try:
-            await cognee.remember(
-                memory_text,
-                dataset_name=DATASET,
+            print(f"Uploading batch {i//batch_size + 1}... ({len(batch)} claims)")
+            response = requests.post(
+                f"{COGNEE_TENANT_URL}/api/v1/add_text",
+                headers={"x-api-key": COGNEE_API_KEY},
+                json={"textData": batch, "datasetName": DATASET}
             )
-            success_count += 1
-
-            if (i + 1) % 100 == 0:
-                print(f"{i + 1}/1000 claims ingested into Cognee")
-
+            if response.status_code == 200:
+                success_count += len(batch)
+            else:
+                print(f"Batch {i//batch_size + 1} failed: {response.text}")
+                error_count += len(batch)
         except Exception as e:
-            error_count += 1
-            print(f"Failed claim {i}: {e}")
-            # log and swallow so we don't nuke the 15 min run
-            continue
+            print(f"Exception during upload: {e}")
+            error_count += len(batch)
 
-    await cognee.disconnect()
+    print("Triggering graph extraction (cognify) on the cloud...")
+    try:
+        # Trigger cognify for the dataset
+        requests.post(
+            f"{COGNEE_TENANT_URL}/api/v1/cognify",
+            headers={"x-api-key": COGNEE_API_KEY},
+            json={"datasets": [DATASET], "runInBackground": True}
+        )
+    except Exception as e:
+        print(f"Failed to trigger cognify: {e}")
 
     print("\nCognee ingestion complete.")
     print(f"Success: {success_count} | Errors: {error_count}")

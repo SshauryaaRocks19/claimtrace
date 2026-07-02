@@ -13,10 +13,11 @@ export async function cogneeRecall(queryText: string): Promise<RecalledClaim[]> 
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": process.env.COGNEE_API_KEY || "",
       },
       body: JSON.stringify({
         query: queryText,
-        dataset: DATASET_NAME,
+        datasets: [DATASET_NAME],
       }),
     });
 
@@ -44,6 +45,7 @@ export async function cogneeImprove(claimId: string, decision: string, wasCorrec
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": process.env.COGNEE_API_KEY || "",
       },
       body: JSON.stringify({
         dataset: DATASET_NAME,
@@ -70,6 +72,7 @@ export async function cogneeForget(claimId: string) {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
+        "x-api-key": process.env.COGNEE_API_KEY || "",
       },
       body: JSON.stringify({
         dataset: DATASET_NAME,
