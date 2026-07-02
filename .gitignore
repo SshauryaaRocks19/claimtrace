@@ -1,0 +1,19 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.env
+.env.local
+
+# Node
+node_modules/
+.next/
+.vercel/
+
+# Data
+data/
+*.zip
+
+# OS
+.DS_Store
+Thumbs.db
