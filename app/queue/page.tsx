@@ -1,9 +1,20 @@
+"use client";
+
+import { useState } from "react";
 import { ClaimsTable } from "@/components/ClaimsTable";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus, Network } from "lucide-react";
+import { RiskBriefPanel } from "@/components/RiskBriefPanel";
+import { Claim } from "@/lib/types";
 
 export default function QueuePage() {
+  const [investigatingClaim, setInvestigatingClaim] = useState<Claim | null>(null);
+
+  const handleInvestigate = (claim: Claim) => {
+    setInvestigatingClaim(claim);
+  };
+
   return (
     <div className="container mx-auto py-10 px-4 max-w-6xl">
       <div className="flex justify-between items-center mb-8">
@@ -26,7 +37,19 @@ export default function QueuePage() {
           </Link>
         </div>
       </div>
-      <ClaimsTable />
+      
+      <ClaimsTable onInvestigate={handleInvestigate} />
+
+      <RiskBriefPanel 
+        isOpen={!!investigatingClaim} 
+        onClose={() => setInvestigatingClaim(null)}
+        claimId={investigatingClaim?.id || null}
+        entities={investigatingClaim ? {
+          attorney: investigatingClaim.attorneyName,
+          clinic: investigatingClaim.medicalProvider,
+          narrative: investigatingClaim.injuryNarrative
+        } : null}
+      />
     </div>
   );
 }
