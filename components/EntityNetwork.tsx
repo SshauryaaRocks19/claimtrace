@@ -15,8 +15,21 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { transformGraphData, APIResponse } from '@/lib/graphData';
-import { Loader2, AlertCircle, RefreshCw, Layers } from 'lucide-react';
+import { Loader2, AlertCircle, RefreshCw, Layers, Check, X, ArchiveX, DatabaseZap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+
+// --- TYPES ---
+export type FeedItemType = 'acceleration' | 'emerging' | 'narrative' | 'dormancy' | 'portfolio';
+
+export interface FeedItem {
+  id: string;
+  type: FeedItemType;
+  title: string;
+  timeAgo: string;
+  content: string;
+  confidence?: 'HIGH' | 'MEDIUM' | 'LOW';
+  borderColor: string;
+}
 
 // --- CUSTOM NODE COMPONENT ---
 function CustomNode({ data }: NodeProps) {
@@ -86,6 +99,86 @@ export function EntityNetwork() {
   const [newClaim, setNewClaim] = useState<any>(null);
   const [activeFilter, setActiveFilter] = useState<string>("ALL");
   const [selectedNodeData, setSelectedNodeData] = useState<any>(null);
+  
+  // Feed State
+  const [memoryFeed, setMemoryFeed] = useState<FeedItem[]>([]);
+  const [isSimulatingFeed, setIsSimulatingFeed] = useState(false);
+
+  // Simulated Feed Population
+  const triggerFeedSimulation = useCallback((isLiveClaim = false) => {
+    setIsSimulatingFeed(true);
+    setMemoryFeed([]); // Clear existing
+    
+    if (isLiveClaim) {
+      setTimeout(() => {
+        setMemoryFeed(prev => [{
+          id: `feed-live-1-${Date.now()}`,
+          type: 'acceleration',
+          title: '🔴 RING ACTIVITY DETECTED',
+          timeAgo: 'just now',
+          content: 'Live claim maps perfectly to Ring A pattern. This is the 3rd Ring A claim this session. Pattern strength increasing.',
+          confidence: 'HIGH',
+          borderColor: 'border-red-500'
+        }, ...prev]);
+        setIsSimulatingFeed(false);
+      }, 1500);
+      return;
+    }
+
+    // Default Portfolio Simulation
+    const delays = [800, 2500, 4000, 5500, 7000];
+    const initialFeed: FeedItem[] = [
+      {
+        id: `feed-1`,
+        type: 'acceleration',
+        title: '🔴 RING ACCELERATION',
+        timeAgo: 'just now',
+        content: 'Ring A claim velocity up 23% vs last 30 days. Kaplan & Associates filed 4 claims this week vs 1.2 weekly avg.',
+        confidence: 'HIGH',
+        borderColor: 'border-red-500'
+      },
+      {
+        id: `feed-2`,
+        type: 'emerging',
+        title: '🟡 EMERGING PATTERN',
+        timeAgo: '2 min ago',
+        content: 'Summit Rehab Clinic appearing with new attorney "Harbor Legal Services" in 3 recent claims. No ring tag yet. Watch for fourth occurrence.',
+        confidence: 'MEDIUM',
+        borderColor: 'border-yellow-500'
+      },
+      {
+        id: `feed-3`,
+        type: 'narrative',
+        title: '🔵 NARRATIVE SIGNAL',
+        timeAgo: '4 min ago',
+        content: '"Referred to specialist within 48hrs" appears in 68% of confirmed fraud vs 9% of legitimate claims in portfolio. Present in today\'s submission.',
+        borderColor: 'border-blue-500'
+      },
+      {
+        id: `feed-4`,
+        type: 'dormancy',
+        title: '🟠 RING DORMANCY ALERT',
+        timeAgo: '1 hr ago',
+        content: 'Ring B last active 52 days ago. Historical avg dormancy: 38 days. Statistically overdue for reactivation. Consider proactive monitoring.',
+        borderColor: 'border-orange-500'
+      },
+      {
+        id: `feed-5`,
+        type: 'portfolio',
+        title: '🟢 PORTFOLIO INSIGHT',
+        timeAgo: '3 hrs ago',
+        content: 'Claims from SC with Major Damage + attorney referral to clinic same day: fraud confirmation rate 84% (n=31). Highest single-pattern predictor.',
+        borderColor: 'border-green-500'
+      }
+    ];
+
+    initialFeed.forEach((item, idx) => {
+      setTimeout(() => {
+        setMemoryFeed(prev => [item, ...prev]);
+        if (idx === initialFeed.length - 1) setIsSimulatingFeed(false);
+      }, delays[idx]);
+    });
+  }, []);
 
   // 1. Fetch Data
   const fetchData = async () => {
@@ -96,6 +189,7 @@ export function EntityNetwork() {
       if (!res.ok) throw new Error('Failed to fetch network data');
       const data = await res.json();
       setApiData(data);
+      triggerFeedSimulation(false); // Trigger feed on load
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -156,6 +250,12 @@ export function EntityNetwork() {
       incidentState: "SC",
       injuryNarrative: "Simulated live claim submission."
     });
+    triggerFeedSimulation(true); // Trigger new feed insights for live claim
+  };
+
+  const handleFeedAction = (id: string, actionType: string) => {
+    // In production, this would call cognee.improve() or cognee.forget()
+    setMemoryFeed(prev => prev.filter(item => item.id !== id));
   };
 
   if (loading) {
@@ -228,13 +328,75 @@ export function EntityNetwork() {
           </ReactFlowProvider>
         </div>
 
-        {/* Detail Panel */}
+        {/* Memory Feed Panel (Persistent Right Side) */}
+        <div className="w-[400px] h-full bg-card border-l border-border flex flex-col relative z-0">
+          <div className="p-4 border-b border-border bg-muted/30 flex justify-between items-center shrink-0">
+            <div className="flex items-center gap-2">
+              <DatabaseZap className="w-5 h-5 text-primary" />
+              <h3 className="font-bold text-sm tracking-wider uppercase text-foreground">Cognee Memory Feed</h3>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => triggerFeedSimulation(!!newClaim)} disabled={isSimulatingFeed} className="h-8 w-8">
+              <RefreshCw className={`w-4 h-4 ${isSimulatingFeed ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {memoryFeed.map((item) => (
+              <div key={item.id} className={`bg-background border border-border rounded-lg p-4 border-l-4 ${item.borderColor} shadow-sm animate-in slide-in-from-right fade-in duration-300`}>
+                <div className="flex justify-between items-start mb-2">
+                  <h4 className="font-bold text-xs tracking-wider">{item.title}</h4>
+                  <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">{item.timeAgo}</span>
+                </div>
+                <p className="text-sm text-foreground/90 leading-relaxed mb-3">
+                  {item.content}
+                </p>
+                {item.confidence && (
+                  <p className="text-xs font-semibold mb-3">
+                    Confidence: <span className={item.confidence === 'HIGH' ? 'text-green-500' : 'text-yellow-500'}>{item.confidence}</span>
+                  </p>
+                )}
+                
+                <div className="flex gap-2 border-t border-border pt-3 mt-1">
+                  <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1" onClick={() => handleFeedAction(item.id, 'improve_positive')}>
+                    <Check className="w-3 h-3 mr-1" /> Confirmed
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1" onClick={() => handleFeedAction(item.id, 'improve_negative')}>
+                    <X className="w-3 h-3 mr-1" /> Not relevant
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1 text-destructive hover:bg-destructive/10" onClick={() => handleFeedAction(item.id, 'forget')}>
+                    <ArchiveX className="w-3 h-3 mr-1" /> Archive
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {isSimulatingFeed && (
+              <div className="flex items-center justify-center p-4 text-muted-foreground animate-pulse">
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                <span className="text-xs">Cognee recalling patterns...</span>
+              </div>
+            )}
+            {memoryFeed.length === 0 && !isSimulatingFeed && (
+              <div className="text-center p-8 text-muted-foreground text-sm">
+                No active insights. Waiting for new graph events.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Node Detail Panel Overlay (Slides in over the feed) */}
         {selectedNodeData && (
-          <div className="w-80 h-full bg-card border-l border-border p-6 overflow-y-auto animate-in slide-in-from-right shadow-2xl z-10 absolute right-0">
-            <h3 className="text-xl font-bold mb-1 text-foreground">{selectedNodeData.label}</h3>
-            <span className="inline-block px-2 py-1 bg-primary/10 text-primary text-xs rounded uppercase tracking-wider mb-6">
-              {selectedNodeData.type}
-            </span>
+          <div className="w-[400px] h-full bg-card/95 backdrop-blur-xl border-l border-border p-6 overflow-y-auto animate-in slide-in-from-right shadow-2xl z-20 absolute right-0">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h3 className="text-xl font-bold mb-1 text-foreground">{selectedNodeData.label}</h3>
+                <span className="inline-block px-2 py-1 bg-primary/10 text-primary text-xs rounded uppercase tracking-wider">
+                  {selectedNodeData.type}
+                </span>
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setSelectedNodeData(null)} className="h-8 w-8">
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
 
             {selectedNodeData.type === 'claim' ? (
               <div className="space-y-4">
