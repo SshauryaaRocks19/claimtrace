@@ -126,18 +126,34 @@ export function EntityNetwork() {
   const [isSimulatingFeed, setIsSimulatingFeed] = useState(false);
 
   // Simulated Feed Population
-  const triggerFeedSimulation = useCallback((isLiveClaim = false) => {
+  const triggerFeedSimulation = useCallback((isLiveClaim = false, targetRing = 'A') => {
     if (isLiveClaim) {
       setIsSimulatingFeed(true);
       setTimeout(() => {
+        let content = '';
+        let title = '';
+        let borderColor = 'border-red-500';
+        
+        if (targetRing === 'A') {
+          title = 'RING A ACTIVITY DETECTED';
+          content = 'Live claim maps perfectly to Ring A pattern. This is the 3rd Ring A claim this session. Pattern strength increasing.';
+        } else if (targetRing === 'B') {
+          title = 'RING B RE-ACTIVATION ALERT';
+          content = 'Live claim maps to Ring B. This breaks the 52-day dormancy period. Immediate investigation recommended.';
+        } else {
+          title = 'ANOMALY DETECTED';
+          content = 'Claim entities do not strongly map to known fraud rings, but share isolated characteristics. Tagged for manual review.';
+          borderColor = 'border-yellow-500';
+        }
+
         setMemoryFeed(prev => [{
           id: `feed-live-1-${Date.now()}`,
           type: 'acceleration',
-          title: 'RING ACTIVITY DETECTED',
+          title,
           timeAgo: 'just now',
-          content: 'Live claim maps perfectly to Ring A pattern. This is the 3rd Ring A claim this session. Pattern strength increasing.',
-          confidence: 'HIGH',
-          borderColor: 'border-red-500'
+          content,
+          confidence: targetRing !== 'null' ? 'HIGH' : 'MEDIUM',
+          borderColor
         }, ...prev]);
         setIsSimulatingFeed(false);
       }, 1500);
@@ -265,12 +281,27 @@ export function EntityNetwork() {
       amount: Number(formData.totalClaimAmount)
     };
     
-    setNewClaim(submittedClaim);
-    triggerFeedSimulation(true); // Trigger new feed insights
+    // Determine Target Ring
+    let targetRing = "A";
+    let end = { x: 0, y: 300 }; // Ring A anchor
     
-    // Start animation towards Ring A
+    const attorney = formData.attorneyName.toLowerCase();
+    if (attorney.includes("sterling")) {
+      targetRing = "B";
+      end = { x: 1000, y: 300 }; // Ring B anchor
+    } else if (attorney.includes("kaplan")) {
+      targetRing = "A";
+      end = { x: 0, y: 300 }; // Ring A anchor
+    } else {
+      targetRing = "null";
+      end = { x: 1000, y: 1200 }; // Safe / Unknown zone
+    }
+
+    setNewClaim(submittedClaim);
+    triggerFeedSimulation(true, targetRing); // Trigger new feed insights
+    
+    // Start animation towards the determined Ring
     const start = { x: 1000, y: -300 };
-    const end = { x: 0, y: 300 }; // Ring A anchor
     const duration = 2000;
     const frames = 60;
     const stepTime = duration / frames;
@@ -377,7 +408,7 @@ export function EntityNetwork() {
               maxZoom={1.5}
               defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
             >
-              <Controls className="fill-foreground text-foreground [&>button]:bg-card [&>button]:border-border [&>button:hover]:bg-accent" />
+              <Controls className="fill-foreground text-foreground [&>button]:bg-card [&>button]:border-border [&>button:hover]:bg-accent [&>button>svg]:fill-foreground" />
               <MiniMap 
                 nodeColor={(node) => (node.data.type === 'attorney' ? '#ef4444' : node.data.type === 'clinic' ? '#f97316' : '#64748b')} 
                 maskColor="rgba(0, 0, 0, 0.6)"
