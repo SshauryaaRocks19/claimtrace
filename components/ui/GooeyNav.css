@@ -125,6 +125,10 @@
 }
 
 
+:root[class~="light"] .gooey-nav-container .effect.filter,
+:root:not(.dark) .gooey-nav-container .effect.filter {
+  mix-blend-mode: multiply;
+}
 
 .gooey-nav-container .effect.filter::before {
   content: '';
