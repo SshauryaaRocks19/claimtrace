@@ -37,84 +37,84 @@ export function ClaimForm({ onSubmit, isLoading }: { onSubmit: (claim: Partial<C
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-100">Claim Details</h2>
-        <Button type="button" variant="outline" size="sm" onClick={autofillDemo} className="text-xs border-blue-500/30 text-blue-400 hover:bg-blue-500/10">
+    <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl mx-auto w-full">
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-bold text-foreground">Claim Details</h2>
+        <Button type="button" variant="outline" onClick={autofillDemo} className="border-primary/30 text-primary hover:bg-primary/10">
           Autofill Demo Claim (Ring A)
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="attorneyName">Attorney Name</Label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-3">
+          <Label htmlFor="attorneyName" className="text-lg">Attorney Name</Label>
           <Input 
             id="attorneyName" 
             value={formData.attorneyName} 
             onChange={e => setFormData({...formData, attorneyName: e.target.value})} 
             required 
-            className="bg-gray-900 border-gray-800"
+            className="text-lg py-6 bg-background border-input"
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="medicalProvider">Medical Provider</Label>
+        <div className="space-y-3">
+          <Label htmlFor="medicalProvider" className="text-lg">Medical Provider</Label>
           <Input 
             id="medicalProvider" 
             value={formData.medicalProvider} 
             onChange={e => setFormData({...formData, medicalProvider: e.target.value})} 
             required 
-            className="bg-gray-900 border-gray-800"
+            className="text-lg py-6 bg-background border-input"
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="repairShop">Repair Shop</Label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-3">
+          <Label htmlFor="repairShop" className="text-lg">Repair Shop</Label>
           <Input 
             id="repairShop" 
             value={formData.repairShop} 
             onChange={e => setFormData({...formData, repairShop: e.target.value})} 
-            className="bg-gray-900 border-gray-800"
+            className="text-lg py-6 bg-background border-input"
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="incidentState">Incident State (e.g. SC, NY)</Label>
+        <div className="space-y-3">
+          <Label htmlFor="incidentState" className="text-lg">Incident State (e.g. SC, NY)</Label>
           <Input 
             id="incidentState" 
             value={formData.incidentState} 
             onChange={e => setFormData({...formData, incidentState: e.target.value})} 
             required 
-            className="bg-gray-900 border-gray-800"
+            className="text-lg py-6 bg-background border-input"
           />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="totalClaimAmount">Total Claim Amount ($)</Label>
+      <div className="space-y-3">
+        <Label htmlFor="totalClaimAmount" className="text-lg">Total Claim Amount ($)</Label>
         <Input 
           id="totalClaimAmount" 
           type="number" 
           value={formData.totalClaimAmount} 
           onChange={e => setFormData({...formData, totalClaimAmount: e.target.value})} 
           required 
-          className="bg-gray-900 border-gray-800"
+          className="text-lg py-6 bg-background border-input"
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="injuryNarrative">Injury Narrative</Label>
+      <div className="space-y-3">
+        <Label htmlFor="injuryNarrative" className="text-lg">Injury Narrative</Label>
         <Textarea 
           id="injuryNarrative" 
           value={formData.injuryNarrative} 
           onChange={e => setFormData({...formData, injuryNarrative: e.target.value})} 
           required 
-          className="bg-gray-900 border-gray-800 min-h-[120px]"
+          className="text-lg p-6 bg-background border-input min-h-[160px] resize-none"
         />
       </div>
 
-      <Button type="submit" disabled={isLoading} className="w-full bg-blue-600 hover:bg-blue-500 text-white">
-        {isLoading ? "Analyzing Risk..." : "Submit for AI Analysis"}
+      <Button type="submit" disabled={isLoading} className="w-full h-16 text-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg rounded-full mt-4 transition-all">
+        {isLoading ? "Initializing Investigation..." : "Investigate Claim"}
       </Button>
     </form>
   );

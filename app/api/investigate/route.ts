@@ -45,12 +45,12 @@ export async function POST(req: Request) {
     `;
 
     // 4. Stream the response back to the UI
-    const result = streamText({
-      model: google('gemini-2.0-flash'),
+    const result = await streamText({
+      model: google('gemini-2.5-flash'),
       prompt: systemPrompt,
     });
 
-    return result.toTextStreamResponse();
+    return result.toDataStreamResponse();
   } catch (error) {
     console.error("API Error in /investigate:", error);
     return new Response(JSON.stringify({ error: "Failed to investigate claim" }), { status: 500 });

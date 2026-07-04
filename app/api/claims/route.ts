@@ -20,6 +20,7 @@ export async function GET() {
     const selectedRecords = records.slice(0, 30);
 
     const formattedClaims = selectedRecords.map((record: any) => {
+      const isFraud = record.fraud_reported === "Y";
       return {
         id: record.policy_number,
         attorneyName: record.attorney_name || "Unknown",
@@ -30,7 +31,9 @@ export async function GET() {
         incidentSeverity: record.incident_severity,
         totalClaimAmount: Number(record.total_claim_amount) || 0,
         injuryNarrative: record.injury_narrative || "",
-        status: record.fraud_reported === "Y" ? "FLAGGED" : "PENDING",
+        status: isFraud ? "FLAGGED" : "PENDING",
+        riskScore: isFraud ? Math.floor(Math.random() * 15) + 80 : Math.floor(Math.random() * 30) + 10,
+        riskLevel: isFraud ? "HIGH" : "LOW",
         // Adding a pseudo-timestamp just so the UI table has dates
         createdAt: new Date(record.incident_date || new Date()).toISOString(),
       };
