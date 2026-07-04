@@ -377,11 +377,11 @@ export function EntityNetwork() {
               maxZoom={1.5}
               defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
             >
-              <Controls />
+              <Controls className="fill-foreground text-foreground [&>button]:bg-card [&>button]:border-border [&>button:hover]:bg-accent" />
               <MiniMap 
                 nodeColor={(node) => (node.data.type === 'attorney' ? '#ef4444' : node.data.type === 'clinic' ? '#f97316' : '#64748b')} 
                 maskColor="rgba(0, 0, 0, 0.6)"
-                style={{ backgroundColor: 'var(--background)' }}
+                className="!bg-background !border-border"
               />
               <Background color="var(--border)" gap={20} size={1} />
             </ReactFlow>
