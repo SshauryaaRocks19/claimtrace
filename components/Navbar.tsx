@@ -16,7 +16,7 @@ export function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-background border-b border-border transition-colors">
+    <nav className="fixed top-0 w-full z-50 isolate bg-background border-b border-border transition-colors">
       <div className="max-w-7xl mx-auto px-8 py-6 flex items-center justify-between">
         {/* Brand */}
         <Link href="/" className="text-2xl font-bold text-foreground tracking-tight">
