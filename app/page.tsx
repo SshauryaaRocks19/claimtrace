@@ -7,7 +7,7 @@ import Ferrofluid from "@/components/Ferrofluid";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#020617] flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-x-hidden">
       {/* 
         HERO SECTION (100vh)
         =================== 
@@ -35,7 +35,7 @@ export default function Home() {
             />
           </div>
           {/* Vignette overlay to fade out the edges of the video/webgl */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_20%,_#020617_100%)] z-10"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_20%,_var(--background)_100%)] z-10"></div>
         </div>
 
         {/* Main Hero Content */}
@@ -111,7 +111,7 @@ export default function Home() {
         SCROLL REVEAL SECTION (Eye Candy)
         ================================= 
       */}
-      <section className="relative z-20 w-full max-w-7xl mx-auto px-6 py-32 bg-[#020617]">
+      <section className="relative z-20 w-full max-w-7xl mx-auto px-6 py-32 bg-background">
         <motion.div 
           initial={{ opacity: 0, y: 100 }}
           whileInView={{ opacity: 1, y: 0 }}

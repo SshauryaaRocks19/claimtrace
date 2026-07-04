@@ -79,7 +79,7 @@ const GooeyNav = ({
         particle.style.setProperty('--time', `${p.time}ms`);
         particle.style.setProperty('--scale', `${p.scale}`);
         // Default to a fallback color like primary if variable isn't defined explicitly
-        particle.style.setProperty('--color', `var(--color-${p.color}, var(--primary))`);
+        particle.style.setProperty('--color', `${p.color}`);
         particle.style.setProperty('--rotate', `${p.rotate}deg`);
 
         point.classList.add('point');
