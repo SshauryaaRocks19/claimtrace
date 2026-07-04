@@ -7,7 +7,7 @@ import Ferrofluid from "@/components/Ferrofluid";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#020617] flex flex-col relative overflow-x-hidden">
       {/* 
         HERO SECTION (100vh)
         =================== 
@@ -35,7 +35,7 @@ export default function Home() {
             />
           </div>
           {/* Vignette overlay to fade out the edges of the video/webgl */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_20%,_#030712_100%)] z-10"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_20%,_#020617_100%)] z-10"></div>
         </div>
 
         {/* Main Hero Content */}
@@ -49,7 +49,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-              className="text-[12vw] md:text-[8vw] lg:text-9xl font-normal text-gray-500 leading-none tracking-tighter"
+              className="text-[12vw] md:text-[8vw] lg:text-9xl font-normal text-muted-foreground leading-none tracking-tighter"
             >
               Uncover.
             </motion.h1>
@@ -57,7 +57,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
-              className="text-[12vw] md:text-[8vw] lg:text-9xl font-normal text-gray-100 leading-none tracking-tighter -mt-[3vw] md:-mt-8 z-10 drop-shadow-2xl"
+              className="text-[12vw] md:text-[8vw] lg:text-9xl font-normal text-foreground leading-none tracking-tighter -mt-[3vw] md:-mt-8 z-10 drop-shadow-2xl"
             >
               The Unseen.
             </motion.h1>
@@ -67,7 +67,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.8 }}
-            className="text-base md:text-xl text-gray-400 mt-8 mb-12 max-w-2xl text-center font-light leading-relaxed px-4"
+            className="text-base md:text-xl text-muted-foreground mt-8 mb-12 max-w-2xl text-center font-light leading-relaxed px-4"
           >
             Detect organized insurance fraud instantly. Your dedication to truth deserves the ultimate tool.
           </motion.p>
@@ -80,13 +80,13 @@ export default function Home() {
           >
             <Link
               href="/network"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gray-900 border border-gray-800 text-gray-300 font-medium hover:bg-gray-800 hover:text-white transition-all text-center"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-secondary border border-border text-secondary-foreground font-medium hover:bg-secondary/80 transition-all text-center"
             >
               View Topology
             </Link>
             <Link
               href="/queue"
-              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-emerald-600 text-white font-medium hover:bg-emerald-500 shadow-[0_0_30px_rgba(5,150,105,0.3)] hover:shadow-[0_0_40px_rgba(5,150,105,0.5)] transition-all flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-primary text-primary-foreground font-medium hover:bg-primary/90 shadow-[0_0_30px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_40px_hsl(var(--primary)/0.5)] transition-all flex items-center justify-center gap-2"
             >
               Enter Workspace
               <ArrowRight className="w-4 h-4" />
@@ -102,8 +102,8 @@ export default function Home() {
           transition={{ delay: 2, duration: 1 }}
           className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20"
         >
-          <span className="text-xs text-gray-500 tracking-widest uppercase">Scroll</span>
-          <div className="w-px h-12 bg-gradient-to-b from-gray-500 to-transparent"></div>
+          <span className="text-xs text-muted-foreground tracking-widest uppercase">Scroll</span>
+          <div className="w-px h-12 bg-gradient-to-b from-muted-foreground to-transparent"></div>
         </motion.div>
       </section>
 
@@ -111,7 +111,7 @@ export default function Home() {
         SCROLL REVEAL SECTION (Eye Candy)
         ================================= 
       */}
-      <section className="relative z-20 w-full max-w-7xl mx-auto px-6 py-32 bg-gray-950">
+      <section className="relative z-20 w-full max-w-7xl mx-auto px-6 py-32 bg-[#020617]">
         <motion.div 
           initial={{ opacity: 0, y: 100 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -120,25 +120,25 @@ export default function Home() {
           className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12"
         >
           {/* Feature 1 */}
-          <div className="p-8 rounded-3xl bg-gray-900/50 border border-gray-800 backdrop-blur-sm">
-            <h3 className="text-2xl font-semibold text-gray-100 mb-3">Instant Ingestion</h3>
-            <p className="text-gray-400 leading-relaxed">
+          <div className="p-8 rounded-3xl bg-card border border-border backdrop-blur-sm">
+            <h3 className="text-2xl font-semibold text-card-foreground mb-3">Instant Ingestion</h3>
+            <p className="text-muted-foreground leading-relaxed">
               Process thousands of unstructured claim narratives and medical records instantly. Extract entities automatically without manual data entry.
             </p>
           </div>
 
           {/* Feature 2 */}
-          <div className="p-8 rounded-3xl bg-gray-900/50 border border-gray-800 backdrop-blur-sm">
-            <h3 className="text-2xl font-semibold text-gray-100 mb-3">Network Mapping</h3>
-            <p className="text-gray-400 leading-relaxed">
+          <div className="p-8 rounded-3xl bg-card border border-border backdrop-blur-sm">
+            <h3 className="text-2xl font-semibold text-card-foreground mb-3">Network Mapping</h3>
+            <p className="text-muted-foreground leading-relaxed">
               Map the hidden relationships between attorneys, clinics, and claimants across all historical cases to find organized rings.
             </p>
           </div>
 
           {/* Feature 3 */}
-          <div className="p-8 rounded-3xl bg-gray-900/50 border border-gray-800 backdrop-blur-sm">
-            <h3 className="text-2xl font-semibold text-gray-100 mb-3">Pattern Discovery</h3>
-            <p className="text-gray-400 leading-relaxed">
+          <div className="p-8 rounded-3xl bg-card border border-border backdrop-blur-sm">
+            <h3 className="text-2xl font-semibold text-card-foreground mb-3">Pattern Discovery</h3>
+            <p className="text-muted-foreground leading-relaxed">
               Analyze claims across the entire network topology to expose organized syndicates and duplicate billing schemes before they strike again.
             </p>
           </div>
