@@ -37,10 +37,10 @@ export function transformGraphData(apiData: APIResponse | null, newClaim?: any):
 
   // Manual Layout Anchor Points (X, Y)
   const ringAnchors = {
-    "A": { x: 200, y: 300 },
-    "B": { x: 800, y: 300 },
-    "C": { x: 1400, y: 300 },
-    "null": { x: 800, y: 800 } // Safe entities go lower
+    "A": { x: 0, y: 300 },
+    "B": { x: 1000, y: 300 },
+    "C": { x: 2000, y: 300 },
+    "null": { x: 1000, y: 1200 } // Safe entities go way down
   };
 
   // 1. Generate Entity Nodes
@@ -49,10 +49,10 @@ export function transformGraphData(apiData: APIResponse | null, newClaim?: any):
     let offsetX = 0;
     let offsetY = 0;
     
-    // Position entities relative to their ring anchor
-    if (entity.type === "attorney") { offsetX = 0; offsetY = -100; }
-    if (entity.type === "clinic") { offsetX = -100; offsetY = 100; }
-    if (entity.type === "repair_shop") { offsetX = 100; offsetY = 100; }
+    // Position entities relative to their ring anchor (wider triangle)
+    if (entity.type === "attorney") { offsetX = 0; offsetY = -200; }
+    if (entity.type === "clinic") { offsetX = -200; offsetY = 200; }
+    if (entity.type === "repair_shop") { offsetX = 200; offsetY = 200; }
 
     nodes.push({
       id: entity.id,
@@ -74,23 +74,19 @@ export function transformGraphData(apiData: APIResponse | null, newClaim?: any):
     let claimX = anchor.x;
     let claimY = anchor.y;
 
-    // Fanning logic based on Ring
+    // Fanning logic based on Ring (wider spread)
     if (rId === "A") {
-      // Fan out to the left
-      claimX = anchor.x - 300 - (index % 3) * 50;
-      claimY = anchor.y - 150 + (index * 25);
+      claimX = anchor.x - 400 - (index % 4) * 80;
+      claimY = anchor.y - 200 + (index * 40);
     } else if (rId === "B") {
-      // Fan upward
-      claimX = anchor.x - 150 + (index * 20);
-      claimY = anchor.y - 300 - (index % 3) * 50;
+      claimX = anchor.x - 250 + (index * 30);
+      claimY = anchor.y - 450 - (index % 4) * 80;
     } else if (rId === "C") {
-      // Fan out to the right
-      claimX = anchor.x + 300 + (index % 3) * 50;
-      claimY = anchor.y - 150 + (index * 25);
+      claimX = anchor.x + 400 + (index % 4) * 80;
+      claimY = anchor.y - 200 + (index * 40);
     } else {
-      // Safe claims
-      claimX = anchor.x - 200 + (index * 40);
-      claimY = anchor.y + 150;
+      claimX = anchor.x - 400 + (index * 80);
+      claimY = anchor.y + 300;
     }
 
     nodes.push({
@@ -101,11 +97,11 @@ export function transformGraphData(apiData: APIResponse | null, newClaim?: any):
     });
 
     // Generate 3 Edges per claim
-    const edgeColor = claim.isFraud ? '#ef4444' : '#6b7280';
+    const edgeColor = claim.isFraud ? 'rgba(239, 68, 68, 0.25)' : 'rgba(107, 114, 128, 0.15)';
     
-    edges.push({ id: `e-${claim.id}-${claim.attorneyId}`, source: claim.attorneyId, target: claim.id, style: { stroke: edgeColor } });
-    edges.push({ id: `e-${claim.id}-${claim.clinicId}`, source: claim.clinicId, target: claim.id, style: { stroke: edgeColor } });
-    edges.push({ id: `e-${claim.id}-${claim.repairShopId}`, source: claim.repairShopId, target: claim.id, style: { stroke: edgeColor } });
+    edges.push({ id: `e-${claim.id}-${claim.attorneyId}`, source: claim.attorneyId, target: claim.id, type: 'smoothstep', style: { stroke: edgeColor, strokeWidth: 1.5 } });
+    edges.push({ id: `e-${claim.id}-${claim.clinicId}`, source: claim.clinicId, target: claim.id, type: 'smoothstep', style: { stroke: edgeColor, strokeWidth: 1.5 } });
+    edges.push({ id: `e-${claim.id}-${claim.repairShopId}`, source: claim.repairShopId, target: claim.id, type: 'smoothstep', style: { stroke: edgeColor, strokeWidth: 1.5 } });
   });
 
   // 3. Handle Live Claim Injection
@@ -114,7 +110,7 @@ export function transformGraphData(apiData: APIResponse | null, newClaim?: any):
     nodes.push({
       id: liveClaimId,
       type: 'custom',
-      position: { x: 800, y: 50 }, // Prominent top-center position
+      position: { x: 1000, y: -200 }, // Prominent top-center position
       data: { ...newClaim, type: 'claim', label: 'NEW CLAIM', isLive: true }
     });
 
@@ -134,6 +130,7 @@ export function transformGraphData(apiData: APIResponse | null, newClaim?: any):
           source: le.target,
           target: liveClaimId,
           animated: true,
+          type: 'smoothstep',
           style: { stroke: '#3b82f6', strokeWidth: 3 }
         });
       }

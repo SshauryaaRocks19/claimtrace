@@ -9,7 +9,9 @@ import {
   useEdgesState,
   Node,
   Edge,
-  NodeProps
+  NodeProps,
+  ReactFlowProvider,
+  useReactFlow
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { transformGraphData, APIResponse } from '@/lib/graphData';
@@ -60,6 +62,21 @@ function CustomNode({ data }: NodeProps) {
 }
 
 const nodeTypes = { custom: CustomNode };
+
+// --- HELPER COMPONENT FOR ZOOM ---
+function FitViewOnFilter({ activeFilter }: { activeFilter: string }) {
+  const { fitView } = useReactFlow();
+
+  useEffect(() => {
+    // Wait for nodes to update visibility, then animate zoom
+    const timer = setTimeout(() => {
+      fitView({ padding: 0.2, duration: 800 });
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [activeFilter, fitView]);
+
+  return null;
+}
 
 // --- MAIN COMPONENT ---
 export function EntityNetwork() {
@@ -186,26 +203,29 @@ export function EntityNetwork() {
       <div className="flex-1 flex overflow-hidden relative bg-background">
         {/* React Flow Canvas */}
         <div className="flex-1 h-full">
-          <ReactFlow
-            nodes={filteredNodes}
-            edges={filteredEdges}
-            nodeTypes={nodeTypes}
-            onNodeClick={onNodeClick}
-            onPaneClick={onPaneClick}
-            fitView
-            minZoom={0.1}
-            maxZoom={1.5}
-            defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
-          >
-            <Controls className="bg-card border-border fill-foreground text-foreground" />
-            <MiniMap 
-              nodeStrokeColor="var(--border)" 
-              nodeColor={(node) => (node.data.type === 'attorney' ? '#ef4444' : node.data.type === 'clinic' ? '#f97316' : 'var(--card)')} 
-              maskColor="rgba(0, 0, 0, 0.4)" 
-              className="bg-card border border-border"
-            />
-            <Background color="var(--border)" gap={20} size={1} />
-          </ReactFlow>
+          <ReactFlowProvider>
+            <FitViewOnFilter activeFilter={activeFilter} />
+            <ReactFlow
+              nodes={filteredNodes}
+              edges={filteredEdges}
+              nodeTypes={nodeTypes}
+              onNodeClick={onNodeClick}
+              onPaneClick={onPaneClick}
+              fitView
+              minZoom={0.1}
+              maxZoom={1.5}
+              defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
+            >
+              <Controls className="bg-card border-border fill-foreground text-foreground" />
+              <MiniMap 
+                nodeStrokeColor="var(--border)" 
+                nodeColor={(node) => (node.data.type === 'attorney' ? '#ef4444' : node.data.type === 'clinic' ? '#f97316' : 'var(--card)')} 
+                maskColor="rgba(0, 0, 0, 0.4)" 
+                className="bg-card border border-border"
+              />
+              <Background color="var(--border)" gap={20} size={1} />
+            </ReactFlow>
+          </ReactFlowProvider>
         </div>
 
         {/* Detail Panel */}
