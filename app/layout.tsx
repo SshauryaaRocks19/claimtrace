@@ -9,6 +9,7 @@ const instrumentSans = Instrument_Sans({
 });
 
 import { Navbar } from "@/components/Navbar";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "ClaimTrace",
@@ -21,14 +22,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${instrumentSans.variable} font-sans antialiased bg-gray-950 text-gray-50 flex flex-col min-h-screen`}>
-        <TooltipProvider>
-          <Navbar />
-          <main className="flex-1 flex flex-col pt-20">
-            {children}
-          </main>
-        </TooltipProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${instrumentSans.variable} font-sans antialiased bg-background text-foreground flex flex-col min-h-screen`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>
+            <Navbar />
+            <main className="flex-1 flex flex-col pt-20">
+              {children}
+            </main>
+          </TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
