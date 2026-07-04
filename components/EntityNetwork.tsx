@@ -49,34 +49,34 @@ function CustomNode({ data }: NodeProps) {
     pulseClass = 'animate-pulse shadow-[0_0_20px_rgba(59,130,246,0.6)] border-blue-500 ring-2 ring-blue-400';
   }
 
-  let bgClass = 'bg-card text-foreground';
-  let sizeClass = 'p-2 text-xs min-w-[100px]';
+  let bgClass = 'bg-card/80 backdrop-blur-md text-foreground';
+  let sizeClass = 'p-2 text-xs min-w-[100px] border-l-2';
   
   switch(data.type) {
     case 'attorney':
-      bgClass = 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400 font-bold';
-      sizeClass = 'p-4 text-base min-w-[160px]';
+      bgClass += ' border-l-red-500/70 border-y-border/50 border-r-border/50';
+      sizeClass = 'p-4 text-sm font-semibold min-w-[160px] tracking-wide';
       break;
     case 'clinic':
-      bgClass = 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400 font-semibold';
-      sizeClass = 'p-3 text-sm min-w-[130px]';
+      bgClass += ' border-l-orange-500/70 border-y-border/50 border-r-border/50';
+      sizeClass = 'p-3 text-xs min-w-[130px] font-medium tracking-wide';
       break;
     case 'repair_shop':
-      bgClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-400';
+      bgClass += ' border-l-yellow-500/70 border-y-border/50 border-r-border/50';
       sizeClass = 'p-2 text-xs min-w-[110px]';
       break;
     case 'claim':
-      bgClass = data.isFraud ? 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300' : 'bg-muted text-foreground';
+      bgClass = data.isFraud ? 'bg-card/80 backdrop-blur-md border-l-red-800 border-y-border/50 border-r-border/50 text-red-500' : 'bg-muted/50 border-l-border/50 border-y-border/50 border-r-border/50 text-foreground/70';
       sizeClass = 'p-1 px-3 text-[10px] rounded-full min-w-[60px]';
       if (isLive) {
-        bgClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 font-bold';
-        sizeClass = 'p-2 px-4 text-xs rounded-full min-w-[100px]';
+        bgClass = 'bg-blue-950/80 backdrop-blur-md text-blue-200 border-blue-500/50 font-bold';
+        sizeClass = 'p-2 px-4 text-xs rounded-full min-w-[100px] shadow-[0_0_15px_rgba(59,130,246,0.3)]';
       }
       break;
   }
 
   return (
-    <div className={`border-2 rounded-lg flex items-center justify-center text-center backdrop-blur-sm ${bgClass} ${sizeClass} ${pulseClass} transition-all`}>
+    <div className={`border rounded-lg flex items-center justify-center text-center ${bgClass} ${sizeClass} ${pulseClass} transition-all`}>
       {data.label}
     </div>
   );
@@ -107,6 +107,7 @@ export function EntityNetwork() {
   const [newClaim, setNewClaim] = useState<any>(null);
   const [activeFilter, setActiveFilter] = useState<string>("ALL");
   const [selectedNodeData, setSelectedNodeData] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'feed' | 'details'>('feed');
   
   // Interactive Analysis State
   const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
@@ -126,10 +127,8 @@ export function EntityNetwork() {
 
   // Simulated Feed Population
   const triggerFeedSimulation = useCallback((isLiveClaim = false) => {
-    setIsSimulatingFeed(true);
-    setMemoryFeed([]); // Clear existing
-    
     if (isLiveClaim) {
+      setIsSimulatingFeed(true);
       setTimeout(() => {
         setMemoryFeed(prev => [{
           id: `feed-live-1-${Date.now()}`,
@@ -145,8 +144,7 @@ export function EntityNetwork() {
       return;
     }
 
-    // Default Portfolio Simulation
-    const delays = [800, 2500, 4000, 5500, 7000];
+    // Default Portfolio Simulation (Immediate Load)
     const initialFeed: FeedItem[] = [
       {
         id: `feed-1`,
@@ -192,12 +190,7 @@ export function EntityNetwork() {
       }
     ];
 
-    initialFeed.forEach((item, idx) => {
-      setTimeout(() => {
-        setMemoryFeed(prev => [item, ...prev]);
-        if (idx === initialFeed.length - 1) setIsSimulatingFeed(false);
-      }, delays[idx]);
-    });
+    setMemoryFeed(initialFeed);
   }, []);
 
   // 1. Fetch Data
@@ -254,10 +247,12 @@ export function EntityNetwork() {
 
   const onNodeClick = useCallback((_: any, node: Node) => {
     setSelectedNodeData(node.data);
+    setActiveTab('details');
   }, []);
 
   const onPaneClick = useCallback(() => {
     setSelectedNodeData(null);
+    setActiveTab('feed');
   }, []);
 
   // Interactive Analysis Action
@@ -301,6 +296,7 @@ export function EntityNetwork() {
           isLive: true,
           showDecision: true
         });
+        setActiveTab('details');
       }
     }, stepTime);
   };
@@ -393,125 +389,156 @@ export function EntityNetwork() {
           </ReactFlowProvider>
         </div>
 
-        {/* Memory Feed Panel (Persistent Right Side) */}
-        <div className="w-[400px] h-full bg-card border-l border-border flex flex-col relative z-0">
-          <div className="p-4 border-b border-border bg-muted/30 flex justify-between items-center shrink-0">
-            <div className="flex items-center gap-2">
-              <DatabaseZap className="w-5 h-5 text-primary" />
-              <h3 className="font-bold text-sm tracking-wider uppercase text-foreground">Cognee Memory Feed</h3>
-            </div>
-            <Button variant="ghost" size="icon" onClick={() => triggerFeedSimulation(!!newClaim)} disabled={isSimulatingFeed} className="h-8 w-8">
-              <RefreshCw className={`w-4 h-4 ${isSimulatingFeed ? 'animate-spin' : ''}`} />
-            </Button>
+        {/* Unified Right Panel (Tabs) */}
+        <div className="w-[400px] h-full bg-card/95 backdrop-blur-xl border-l border-border flex flex-col relative z-20 shadow-2xl">
+          
+          {/* Tab Header */}
+          <div className="flex border-b border-border bg-muted/30">
+            <button 
+              className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors ${activeTab === 'feed' ? 'bg-card text-primary border-b-2 border-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
+              onClick={() => setActiveTab('feed')}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <DatabaseZap className="w-4 h-4" />
+                Memory Feed
+              </div>
+            </button>
+            <button 
+              className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors ${activeTab === 'details' ? 'bg-card text-primary border-b-2 border-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
+              onClick={() => setActiveTab('details')}
+              disabled={!selectedNodeData && activeTab !== 'details'}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Layers className="w-4 h-4" />
+                Details
+              </div>
+            </button>
           </div>
           
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {memoryFeed.map((item) => (
-              <div key={item.id} className={`bg-background border border-border rounded-lg p-4 border-l-4 ${item.borderColor} shadow-sm animate-in slide-in-from-right fade-in duration-300`}>
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex items-center gap-2">
-                    {getIconForType(item.type)}
-                    <h4 className="font-bold text-xs tracking-wider">{item.title}</h4>
+          <div className="flex-1 overflow-y-auto relative">
+            
+            {/* Memory Feed Tab */}
+            {activeTab === 'feed' && (
+              <div className="absolute inset-0 p-4 space-y-4 animate-in fade-in duration-200">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs text-muted-foreground uppercase font-semibold">Active Patterns</span>
+                  <Button variant="ghost" size="icon" onClick={() => triggerFeedSimulation(false)} disabled={isSimulatingFeed} className="h-6 w-6">
+                    <RefreshCw className={`w-3 h-3 ${isSimulatingFeed ? 'animate-spin' : ''}`} />
+                  </Button>
+                </div>
+                {memoryFeed.map((item) => (
+                  <div key={item.id} className={`bg-background border border-border rounded-lg p-4 border-l-4 ${item.borderColor} shadow-sm animate-in slide-in-from-right fade-in duration-300`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                        {getIconForType(item.type)}
+                        <h4 className="font-bold text-xs tracking-wider">{item.title}</h4>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">{item.timeAgo}</span>
+                    </div>
+                    <p className="text-sm text-foreground/90 leading-relaxed mb-3">
+                      {item.content}
+                    </p>
+                    {item.confidence && (
+                      <p className="text-xs font-semibold mb-3">
+                        Confidence: <span className={item.confidence === 'HIGH' ? 'text-green-500' : 'text-yellow-500'}>{item.confidence}</span>
+                      </p>
+                    )}
+                    
+                    <div className="flex gap-2 border-t border-border pt-3 mt-1">
+                      <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1" onClick={() => handleFeedAction(item.id, 'improve_positive')}>
+                        <Check className="w-3 h-3 mr-1" /> Confirmed
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1" onClick={() => handleFeedAction(item.id, 'improve_negative')}>
+                        <X className="w-3 h-3 mr-1" /> Not relevant
+                      </Button>
+                      <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1 text-destructive hover:bg-destructive/10" onClick={() => handleFeedAction(item.id, 'forget')}>
+                        <ArchiveX className="w-3 h-3 mr-1" /> Archive
+                      </Button>
+                    </div>
                   </div>
-                  <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">{item.timeAgo}</span>
-                </div>
-                <p className="text-sm text-foreground/90 leading-relaxed mb-3">
-                  {item.content}
-                </p>
-                {item.confidence && (
-                  <p className="text-xs font-semibold mb-3">
-                    Confidence: <span className={item.confidence === 'HIGH' ? 'text-green-500' : 'text-yellow-500'}>{item.confidence}</span>
-                  </p>
+                ))}
+                {isSimulatingFeed && (
+                  <div className="flex items-center justify-center p-4 text-muted-foreground animate-pulse">
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    <span className="text-xs">Cognee recalling patterns...</span>
+                  </div>
                 )}
-                
-                <div className="flex gap-2 border-t border-border pt-3 mt-1">
-                  <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1" onClick={() => handleFeedAction(item.id, 'improve_positive')}>
-                    <Check className="w-3 h-3 mr-1" /> Confirmed
-                  </Button>
-                  <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1" onClick={() => handleFeedAction(item.id, 'improve_negative')}>
-                    <X className="w-3 h-3 mr-1" /> Not relevant
-                  </Button>
-                  <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1 text-destructive hover:bg-destructive/10" onClick={() => handleFeedAction(item.id, 'forget')}>
-                    <ArchiveX className="w-3 h-3 mr-1" /> Archive
-                  </Button>
-                </div>
-              </div>
-            ))}
-            {isSimulatingFeed && (
-              <div className="flex items-center justify-center p-4 text-muted-foreground animate-pulse">
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                <span className="text-xs">Cognee recalling patterns...</span>
+                {memoryFeed.length === 0 && !isSimulatingFeed && (
+                  <div className="text-center p-8 text-muted-foreground text-sm">
+                    No active insights. Waiting for new graph events.
+                  </div>
+                )}
               </div>
             )}
-            {memoryFeed.length === 0 && !isSimulatingFeed && (
-              <div className="text-center p-8 text-muted-foreground text-sm">
-                No active insights. Waiting for new graph events.
+
+            {/* Node Detail Tab */}
+            {activeTab === 'details' && selectedNodeData && (
+              <div className="absolute inset-0 p-6 animate-in slide-in-from-right fade-in duration-200">
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <h3 className="text-xl font-bold mb-1 text-foreground">{selectedNodeData.label}</h3>
+                    <span className="inline-block px-2 py-1 bg-primary/10 text-primary text-xs rounded uppercase tracking-wider">
+                      {selectedNodeData.type}
+                    </span>
+                  </div>
+                </div>
+
+                {selectedNodeData.type === 'claim' ? (
+                  <div className="space-y-4">
+                    {selectedNodeData.isFraud && (
+                      <div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-md font-medium">
+                        CONFIRMED FRAUD
+                      </div>
+                    )}
+                    {selectedNodeData.ringId && (
+                      <div><p className="text-xs text-muted-foreground uppercase">Ring Affiliation</p><p className="font-semibold">Ring {selectedNodeData.ringId}</p></div>
+                    )}
+                    <div><p className="text-xs text-muted-foreground uppercase">Amount</p><p className="text-lg font-bold">${Number(selectedNodeData.amount).toLocaleString()}</p></div>
+                    <div><p className="text-xs text-muted-foreground uppercase">State</p><p>{selectedNodeData.state}</p></div>
+                    <div><p className="text-xs text-muted-foreground uppercase">Narrative Preview</p><p className="text-sm mt-1 text-muted-foreground">{selectedNodeData.narrativePreview || selectedNodeData.injuryNarrative}</p></div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div><p className="text-xs text-muted-foreground uppercase">Total Claims</p><p className="text-2xl font-bold">{selectedNodeData.claimCount}</p></div>
+                    <div><p className="text-xs text-muted-foreground uppercase">Confirmed Fraud</p><p className="text-2xl font-bold text-destructive">{selectedNodeData.fraudCount}</p></div>
+                    <div><p className="text-xs text-muted-foreground uppercase">Avg Claim Amount</p><p className="font-medium">${Number(selectedNodeData.avgClaimAmount).toLocaleString()}</p></div>
+                    {selectedNodeData.states && (
+                      <div><p className="text-xs text-muted-foreground uppercase">Operating States</p><div className="flex gap-1 mt-1">{selectedNodeData.states.map((s: string) => <span key={s} className="px-2 py-1 bg-muted rounded text-xs">{s}</span>)}</div></div>
+                    )}
+                  </div>
+                )}
+
+                {selectedNodeData.showDecision && (
+                  <div className="mt-8 space-y-3 border-t border-border pt-6">
+                    <h4 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4">Investigator Decision</h4>
+                    <Button className="w-full bg-red-600 hover:bg-red-700 text-white" onClick={() => {
+                      setSelectedNodeData(null);
+                      setNewClaim(null);
+                      setLiveClaimPosition(undefined);
+                      setActiveTab('feed');
+                    }}>
+                      <AlertCircle className="w-4 h-4 mr-2" /> Flag for Investigation
+                    </Button>
+                    <Button className="w-full" variant="outline" onClick={() => {
+                      setSelectedNodeData(null);
+                      setNewClaim(null);
+                      setLiveClaimPosition(undefined);
+                      setActiveTab('feed');
+                    }}>
+                      <Check className="w-4 h-4 mr-2" /> Mark as Safe (False Positive)
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {activeTab === 'details' && !selectedNodeData && (
+              <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm p-8 text-center">
+                Select a node on the graph to view its details.
               </div>
             )}
           </div>
         </div>
-
-        {/* Node Detail Panel Overlay (Slides in over the feed) */}
-        {selectedNodeData && (
-          <div className="w-[400px] h-full bg-card/95 backdrop-blur-xl border-l border-border p-6 overflow-y-auto animate-in slide-in-from-right shadow-2xl z-20 absolute right-0">
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <h3 className="text-xl font-bold mb-1 text-foreground">{selectedNodeData.label}</h3>
-                <span className="inline-block px-2 py-1 bg-primary/10 text-primary text-xs rounded uppercase tracking-wider">
-                  {selectedNodeData.type}
-                </span>
-              </div>
-              <Button variant="ghost" size="icon" onClick={() => setSelectedNodeData(null)} className="h-8 w-8">
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {selectedNodeData.type === 'claim' ? (
-              <div className="space-y-4">
-                {selectedNodeData.isFraud && (
-                  <div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-sm rounded-md font-medium">
-                    CONFIRMED FRAUD
-                  </div>
-                )}
-                {selectedNodeData.ringId && (
-                  <div><p className="text-xs text-muted-foreground uppercase">Ring Affiliation</p><p className="font-semibold">Ring {selectedNodeData.ringId}</p></div>
-                )}
-                <div><p className="text-xs text-muted-foreground uppercase">Amount</p><p className="text-lg font-bold">${Number(selectedNodeData.amount).toLocaleString()}</p></div>
-                <div><p className="text-xs text-muted-foreground uppercase">State</p><p>{selectedNodeData.state}</p></div>
-                <div><p className="text-xs text-muted-foreground uppercase">Narrative Preview</p><p className="text-sm mt-1 text-muted-foreground">{selectedNodeData.narrativePreview || selectedNodeData.injuryNarrative}</p></div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div><p className="text-xs text-muted-foreground uppercase">Total Claims</p><p className="text-2xl font-bold">{selectedNodeData.claimCount}</p></div>
-                <div><p className="text-xs text-muted-foreground uppercase">Confirmed Fraud</p><p className="text-2xl font-bold text-destructive">{selectedNodeData.fraudCount}</p></div>
-                <div><p className="text-xs text-muted-foreground uppercase">Avg Claim Amount</p><p className="font-medium">${Number(selectedNodeData.avgClaimAmount).toLocaleString()}</p></div>
-                {selectedNodeData.states && (
-                  <div><p className="text-xs text-muted-foreground uppercase">Operating States</p><div className="flex gap-1 mt-1">{selectedNodeData.states.map((s: string) => <span key={s} className="px-2 py-1 bg-muted rounded text-xs">{s}</span>)}</div></div>
-                )}
-              </div>
-            )}
-
-            {selectedNodeData.showDecision && (
-              <div className="mt-8 space-y-3 border-t border-border pt-6">
-                <h4 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4">Investigator Decision</h4>
-                <Button className="w-full bg-red-600 hover:bg-red-700 text-white" onClick={() => {
-                  setSelectedNodeData(null);
-                  setNewClaim(null);
-                  setLiveClaimPosition(undefined);
-                }}>
-                  <AlertCircle className="w-4 h-4 mr-2" /> Flag for Investigation
-                </Button>
-                <Button className="w-full" variant="outline" onClick={() => {
-                  setSelectedNodeData(null);
-                  setNewClaim(null);
-                  setLiveClaimPosition(undefined);
-                }}>
-                  <Check className="w-4 h-4 mr-2" /> Mark as Safe (False Positive)
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Analysis Modal */}
