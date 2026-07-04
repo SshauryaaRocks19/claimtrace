@@ -49,34 +49,34 @@ function CustomNode({ data }: NodeProps) {
     pulseClass = 'animate-pulse shadow-[0_0_20px_rgba(59,130,246,0.6)] border-blue-500 ring-2 ring-blue-400';
   }
 
-  let bgClass = 'bg-card/80 backdrop-blur-md text-foreground';
-  let sizeClass = 'p-2 text-xs min-w-[100px] border-l-2';
+  let bgClass = 'bg-card text-foreground';
+  let sizeClass = 'p-2 text-xs min-w-[100px]';
   
   switch(data.type) {
     case 'attorney':
-      bgClass += ' border-l-red-500/70 border-y-border/50 border-r-border/50';
-      sizeClass = 'p-4 text-sm font-semibold min-w-[160px] tracking-wide';
+      bgClass = 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400 font-bold';
+      sizeClass = 'p-4 text-base min-w-[160px]';
       break;
     case 'clinic':
-      bgClass += ' border-l-orange-500/70 border-y-border/50 border-r-border/50';
-      sizeClass = 'p-3 text-xs min-w-[130px] font-medium tracking-wide';
+      bgClass = 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400 font-semibold';
+      sizeClass = 'p-3 text-sm min-w-[130px]';
       break;
     case 'repair_shop':
-      bgClass += ' border-l-yellow-500/70 border-y-border/50 border-r-border/50';
+      bgClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-400';
       sizeClass = 'p-2 text-xs min-w-[110px]';
       break;
     case 'claim':
-      bgClass = data.isFraud ? 'bg-card/80 backdrop-blur-md border-l-red-800 border-y-border/50 border-r-border/50 text-red-500' : 'bg-muted/50 border-l-border/50 border-y-border/50 border-r-border/50 text-foreground/70';
+      bgClass = data.isFraud ? 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300' : 'bg-muted text-foreground';
       sizeClass = 'p-1 px-3 text-[10px] rounded-full min-w-[60px]';
       if (isLive) {
-        bgClass = 'bg-blue-950/80 backdrop-blur-md text-blue-200 border-blue-500/50 font-bold';
-        sizeClass = 'p-2 px-4 text-xs rounded-full min-w-[100px] shadow-[0_0_15px_rgba(59,130,246,0.3)]';
+        bgClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 font-bold';
+        sizeClass = 'p-2 px-4 text-xs rounded-full min-w-[100px]';
       }
       break;
   }
 
   return (
-    <div className={`border rounded-lg flex items-center justify-center text-center ${bgClass} ${sizeClass} ${pulseClass} transition-all`}>
+    <div className={`border-2 rounded-lg flex items-center justify-center text-center backdrop-blur-sm ${bgClass} ${sizeClass} ${pulseClass} transition-all`}>
       {data.label}
     </div>
   );
@@ -377,12 +377,11 @@ export function EntityNetwork() {
               maxZoom={1.5}
               defaultViewport={{ x: 0, y: 0, zoom: 0.5 }}
             >
-              <Controls className="bg-card border-border fill-foreground text-foreground" />
+              <Controls />
               <MiniMap 
-                nodeStrokeColor="var(--border)" 
-                nodeColor={(node) => (node.data.type === 'attorney' ? '#ef4444' : node.data.type === 'clinic' ? '#f97316' : 'var(--card)')} 
-                maskColor="rgba(0, 0, 0, 0.4)" 
-                className="bg-card border border-border"
+                nodeColor={(node) => (node.data.type === 'attorney' ? '#ef4444' : node.data.type === 'clinic' ? '#f97316' : '#64748b')} 
+                maskColor="rgba(0, 0, 0, 0.6)"
+                style={{ backgroundColor: 'var(--background)' }}
               />
               <Background color="var(--border)" gap={20} size={1} />
             </ReactFlow>
@@ -427,34 +426,17 @@ export function EntityNetwork() {
                   </Button>
                 </div>
                 {memoryFeed.map((item) => (
-                  <div key={item.id} className={`bg-background border border-border rounded-lg p-4 border-l-4 ${item.borderColor} shadow-sm animate-in slide-in-from-right fade-in duration-300`}>
-                    <div className="flex justify-between items-start mb-2">
+                  <div key={item.id} className="py-3 border-b border-border/50 animate-in slide-in-from-right fade-in duration-300 last:border-0">
+                    <div className="flex justify-between items-center mb-1.5">
                       <div className="flex items-center gap-2">
                         {getIconForType(item.type)}
-                        <h4 className="font-bold text-xs tracking-wider">{item.title}</h4>
+                        <h4 className="font-semibold text-xs text-foreground/90">{item.title}</h4>
                       </div>
-                      <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">{item.timeAgo}</span>
+                      <span className="text-[10px] text-muted-foreground/70">{item.timeAgo}</span>
                     </div>
-                    <p className="text-sm text-foreground/90 leading-relaxed mb-3">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
                       {item.content}
                     </p>
-                    {item.confidence && (
-                      <p className="text-xs font-semibold mb-3">
-                        Confidence: <span className={item.confidence === 'HIGH' ? 'text-green-500' : 'text-yellow-500'}>{item.confidence}</span>
-                      </p>
-                    )}
-                    
-                    <div className="flex gap-2 border-t border-border pt-3 mt-1">
-                      <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1" onClick={() => handleFeedAction(item.id, 'improve_positive')}>
-                        <Check className="w-3 h-3 mr-1" /> Confirmed
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1" onClick={() => handleFeedAction(item.id, 'improve_negative')}>
-                        <X className="w-3 h-3 mr-1" /> Not relevant
-                      </Button>
-                      <Button variant="outline" size="sm" className="h-7 text-[10px] px-2 flex-1 text-destructive hover:bg-destructive/10" onClick={() => handleFeedAction(item.id, 'forget')}>
-                        <ArchiveX className="w-3 h-3 mr-1" /> Archive
-                      </Button>
-                    </div>
                   </div>
                 ))}
                 {isSimulatingFeed && (
