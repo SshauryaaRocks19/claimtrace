@@ -15,7 +15,7 @@ export default function Home() {
       <section className="relative h-screen w-full flex flex-col items-center justify-center -mt-20">
         
         {/* Ferrofluid Background Layer */}
-        <div className="absolute inset-0 z-0 opacity-40 mix-blend-multiply dark:mix-blend-screen pointer-events-none">
+        <div className="absolute inset-0 z-0 opacity-60 pointer-events-none">
           <div style={{ width: '100%', height: '100%', position: 'relative' }}>
             <Ferrofluid
               colors={["#059669", "#3b82f6", "#1f2937"]} // Emerald, Blue, Dark Gray

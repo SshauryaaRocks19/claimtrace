@@ -27,7 +27,7 @@ const GooeyNav = ({
   particleDistances = [90, 10],
   particleR = 100,
   timeVariance = 300,
-  colors = ['var(--primary)', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6'],
+  colors = ['var(--foreground)', 'var(--primary)'],
 }: GooeyNavProps) => {
   const pathname = usePathname();
   const initialIndex = items.findIndex((item) => item.href === pathname);
