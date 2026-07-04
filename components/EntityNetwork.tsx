@@ -15,8 +15,16 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { transformGraphData, APIResponse } from '@/lib/graphData';
-import { Loader2, AlertCircle, RefreshCw, Layers, Check, X, ArchiveX, DatabaseZap, Activity, Radar, MessageSquareText, Clock, Lightbulb } from 'lucide-react';
+import { Loader2, AlertCircle, RefreshCw, Layers, Check, X, ArchiveX, DatabaseZap, Activity, Radar, MessageSquareText, Clock, Lightbulb, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 // --- TYPES ---
 export type FeedItemType = 'acceleration' | 'emerging' | 'narrative' | 'dormancy' | 'portfolio';
@@ -99,6 +107,18 @@ export function EntityNetwork() {
   const [newClaim, setNewClaim] = useState<any>(null);
   const [activeFilter, setActiveFilter] = useState<string>("ALL");
   const [selectedNodeData, setSelectedNodeData] = useState<any>(null);
+  
+  // Interactive Analysis State
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+  const [liveClaimPosition, setLiveClaimPosition] = useState<{x: number, y: number} | undefined>(undefined);
+  const [formData, setFormData] = useState({
+    attorneyName: "Kaplan & Associates",
+    medicalProvider: "Summit Rehab Clinic",
+    repairShop: "QuickFix Auto Body",
+    totalClaimAmount: "16500",
+    incidentState: "SC",
+    injuryNarrative: "Simulated live claim submission."
+  });
   
   // Feed State
   const [memoryFeed, setMemoryFeed] = useState<FeedItem[]>([]);
@@ -210,9 +230,9 @@ export function EntityNetwork() {
 
   // 2. Transform API Response to Graph Elements (Memoized)
   const { rawNodes, rawEdges } = useMemo(() => {
-    const { nodes, edges } = transformGraphData(apiData, newClaim);
+    const { nodes, edges } = transformGraphData(apiData, newClaim, liveClaimPosition);
     return { rawNodes: nodes, rawEdges: edges };
-  }, [apiData, newClaim]);
+  }, [apiData, newClaim, liveClaimPosition]);
 
   // 3. Apply Filters Client-Side
   const filteredNodes = useMemo(() => {
@@ -240,17 +260,49 @@ export function EntityNetwork() {
     setSelectedNodeData(null);
   }, []);
 
-  // Simulate Live Claim Action
-  const handleSimulate = () => {
-    setNewClaim({
-      attorneyName: "Kaplan",
-      medicalProvider: "Summit",
-      repairShop: "QuickFix",
-      totalClaimAmount: 16500,
-      incidentState: "SC",
-      injuryNarrative: "Simulated live claim submission."
-    });
-    triggerFeedSimulation(true); // Trigger new feed insights for live claim
+  // Interactive Analysis Action
+  const handleAnalyzeClaim = () => {
+    setIsAnalysisModalOpen(false);
+    setLiveClaimPosition({ x: 1000, y: -300 }); // Starting position
+    
+    const submittedClaim = {
+      ...formData,
+      amount: Number(formData.totalClaimAmount)
+    };
+    
+    setNewClaim(submittedClaim);
+    triggerFeedSimulation(true); // Trigger new feed insights
+    
+    // Start animation towards Ring A
+    const start = { x: 1000, y: -300 };
+    const end = { x: 0, y: 300 }; // Ring A anchor
+    const duration = 2000;
+    const frames = 60;
+    const stepTime = duration / frames;
+    let currentFrame = 0;
+
+    const interval = setInterval(() => {
+      currentFrame++;
+      const progress = currentFrame / frames;
+      const easeProgress = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      
+      setLiveClaimPosition({
+        x: start.x + (end.x - start.x) * easeProgress,
+        y: start.y + (end.y - start.y) * easeProgress,
+      });
+
+      if (currentFrame >= frames) {
+        clearInterval(interval);
+        // Pop open the detail panel for decision
+        setSelectedNodeData({
+          ...submittedClaim,
+          type: 'claim',
+          label: 'NEW CLAIM',
+          isLive: true,
+          showDecision: true
+        });
+      }
+    }, stepTime);
   };
 
   const handleFeedAction = (id: string, actionType: string) => {
@@ -306,7 +358,9 @@ export function EntityNetwork() {
           ))}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleSimulate}>Simulate Live Claim</Button>
+          <Button variant="default" size="sm" onClick={() => setIsAnalysisModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Play className="w-4 h-4 mr-2" /> Analyze New Claim
+          </Button>
           <Button variant="ghost" size="icon" onClick={fetchData}><RefreshCw className="w-4 h-4" /></Button>
         </div>
       </div>
@@ -436,9 +490,74 @@ export function EntityNetwork() {
                 )}
               </div>
             )}
+
+            {selectedNodeData.showDecision && (
+              <div className="mt-8 space-y-3 border-t border-border pt-6">
+                <h4 className="font-bold text-sm uppercase tracking-wider text-muted-foreground mb-4">Investigator Decision</h4>
+                <Button className="w-full bg-red-600 hover:bg-red-700 text-white" onClick={() => {
+                  setSelectedNodeData(null);
+                  setNewClaim(null);
+                  setLiveClaimPosition(undefined);
+                }}>
+                  <AlertCircle className="w-4 h-4 mr-2" /> Flag for Investigation
+                </Button>
+                <Button className="w-full" variant="outline" onClick={() => {
+                  setSelectedNodeData(null);
+                  setNewClaim(null);
+                  setLiveClaimPosition(undefined);
+                }}>
+                  <Check className="w-4 h-4 mr-2" /> Mark as Safe (False Positive)
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* Analysis Modal */}
+      <Dialog open={isAnalysisModalOpen} onOpenChange={setIsAnalysisModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Analyze New Claim</DialogTitle>
+            <DialogDescription>
+              Enter the claim details below. Cognee will connect the entities and analyze the fraud risk against its memory.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label className="text-xs font-semibold uppercase">Attorney Name</label>
+              <input type="text" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.attorneyName} onChange={e => setFormData({...formData, attorneyName: e.target.value})} />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-xs font-semibold uppercase">Medical Provider</label>
+              <input type="text" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.medicalProvider} onChange={e => setFormData({...formData, medicalProvider: e.target.value})} />
+            </div>
+            <div className="grid gap-2">
+              <label className="text-xs font-semibold uppercase">Repair Shop</label>
+              <input type="text" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.repairShop} onChange={e => setFormData({...formData, repairShop: e.target.value})} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <label className="text-xs font-semibold uppercase">Amount</label>
+                <input type="number" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.totalClaimAmount} onChange={e => setFormData({...formData, totalClaimAmount: e.target.value})} />
+              </div>
+              <div className="grid gap-2">
+                <label className="text-xs font-semibold uppercase">State</label>
+                <input type="text" className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.incidentState} onChange={e => setFormData({...formData, incidentState: e.target.value})} />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <label className="text-xs font-semibold uppercase">Narrative</label>
+              <textarea className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={formData.injuryNarrative} onChange={e => setFormData({...formData, injuryNarrative: e.target.value})} />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" onClick={handleAnalyzeClaim} className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+              <Play className="w-4 h-4 mr-2" /> Start AI Analysis
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

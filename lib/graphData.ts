@@ -29,7 +29,7 @@ export type APIResponse = {
   rings: any[];
 };
 
-export function transformGraphData(apiData: APIResponse | null, newClaim?: any): { nodes: Node[], edges: Edge[] } {
+export function transformGraphData(apiData: APIResponse | null, newClaim?: any, liveClaimPosition?: { x: number, y: number }): { nodes: Node[], edges: Edge[] } {
   if (!apiData) return { nodes: [], edges: [] };
 
   const nodes: Node[] = [];
@@ -110,7 +110,7 @@ export function transformGraphData(apiData: APIResponse | null, newClaim?: any):
     nodes.push({
       id: liveClaimId,
       type: 'custom',
-      position: { x: 1000, y: -200 }, // Prominent top-center position
+      position: liveClaimPosition || { x: 1000, y: -300 }, // Start higher up
       data: { ...newClaim, type: 'claim', label: 'NEW CLAIM', isLive: true }
     });
 
@@ -131,6 +131,7 @@ export function transformGraphData(apiData: APIResponse | null, newClaim?: any):
           target: liveClaimId,
           animated: true,
           type: 'smoothstep',
+          zIndex: 1000,
           style: { stroke: '#3b82f6', strokeWidth: 3 }
         });
       }
