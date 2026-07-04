@@ -33,22 +33,22 @@ function CustomNode({ data }: NodeProps) {
   
   switch(data.type) {
     case 'attorney':
-      bgClass = 'bg-red-950/40 text-red-400 font-bold';
+      bgClass = 'bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400 font-bold';
       sizeClass = 'p-4 text-base min-w-[160px]';
       break;
     case 'clinic':
-      bgClass = 'bg-orange-950/40 text-orange-400 font-semibold';
+      bgClass = 'bg-orange-100 text-orange-700 dark:bg-orange-950/40 dark:text-orange-400 font-semibold';
       sizeClass = 'p-3 text-sm min-w-[130px]';
       break;
     case 'repair_shop':
-      bgClass = 'bg-yellow-950/40 text-yellow-400';
+      bgClass = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-400';
       sizeClass = 'p-2 text-xs min-w-[110px]';
       break;
     case 'claim':
-      bgClass = data.isFraud ? 'bg-red-950/60 text-red-300' : 'bg-muted text-foreground';
+      bgClass = data.isFraud ? 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300' : 'bg-muted text-foreground';
       sizeClass = 'p-1 px-3 text-[10px] rounded-full min-w-[60px]';
       if (isLive) {
-        bgClass = 'bg-blue-900 text-blue-200 font-bold';
+        bgClass = 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 font-bold';
         sizeClass = 'p-2 px-4 text-xs rounded-full min-w-[100px]';
       }
       break;
