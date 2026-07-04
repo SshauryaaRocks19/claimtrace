@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { transformGraphData, APIResponse } from '@/lib/graphData';
-import { Loader2, AlertCircle, RefreshCw, Layers, Check, X, ArchiveX, DatabaseZap } from 'lucide-react';
+import { Loader2, AlertCircle, RefreshCw, Layers, Check, X, ArchiveX, DatabaseZap, Activity, Radar, MessageSquareText, Clock, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 // --- TYPES ---
@@ -114,7 +114,7 @@ export function EntityNetwork() {
         setMemoryFeed(prev => [{
           id: `feed-live-1-${Date.now()}`,
           type: 'acceleration',
-          title: '🔴 RING ACTIVITY DETECTED',
+          title: 'RING ACTIVITY DETECTED',
           timeAgo: 'just now',
           content: 'Live claim maps perfectly to Ring A pattern. This is the 3rd Ring A claim this session. Pattern strength increasing.',
           confidence: 'HIGH',
@@ -131,7 +131,7 @@ export function EntityNetwork() {
       {
         id: `feed-1`,
         type: 'acceleration',
-        title: '🔴 RING ACCELERATION',
+        title: 'RING ACCELERATION',
         timeAgo: 'just now',
         content: 'Ring A claim velocity up 23% vs last 30 days. Kaplan & Associates filed 4 claims this week vs 1.2 weekly avg.',
         confidence: 'HIGH',
@@ -140,7 +140,7 @@ export function EntityNetwork() {
       {
         id: `feed-2`,
         type: 'emerging',
-        title: '🟡 EMERGING PATTERN',
+        title: 'EMERGING PATTERN',
         timeAgo: '2 min ago',
         content: 'Summit Rehab Clinic appearing with new attorney "Harbor Legal Services" in 3 recent claims. No ring tag yet. Watch for fourth occurrence.',
         confidence: 'MEDIUM',
@@ -149,7 +149,7 @@ export function EntityNetwork() {
       {
         id: `feed-3`,
         type: 'narrative',
-        title: '🔵 NARRATIVE SIGNAL',
+        title: 'NARRATIVE SIGNAL',
         timeAgo: '4 min ago',
         content: '"Referred to specialist within 48hrs" appears in 68% of confirmed fraud vs 9% of legitimate claims in portfolio. Present in today\'s submission.',
         borderColor: 'border-blue-500'
@@ -157,7 +157,7 @@ export function EntityNetwork() {
       {
         id: `feed-4`,
         type: 'dormancy',
-        title: '🟠 RING DORMANCY ALERT',
+        title: 'RING DORMANCY ALERT',
         timeAgo: '1 hr ago',
         content: 'Ring B last active 52 days ago. Historical avg dormancy: 38 days. Statistically overdue for reactivation. Consider proactive monitoring.',
         borderColor: 'border-orange-500'
@@ -165,7 +165,7 @@ export function EntityNetwork() {
       {
         id: `feed-5`,
         type: 'portfolio',
-        title: '🟢 PORTFOLIO INSIGHT',
+        title: 'PORTFOLIO INSIGHT',
         timeAgo: '3 hrs ago',
         content: 'Claims from SC with Major Damage + attorney referral to clinic same day: fraud confirmation rate 84% (n=31). Highest single-pattern predictor.',
         borderColor: 'border-green-500'
@@ -277,6 +277,17 @@ export function EntityNetwork() {
     );
   }
 
+  const getIconForType = (type: string) => {
+    switch(type) {
+      case 'acceleration': return <Activity className="w-4 h-4 text-red-500" />;
+      case 'emerging': return <Radar className="w-4 h-4 text-yellow-500" />;
+      case 'narrative': return <MessageSquareText className="w-4 h-4 text-blue-500" />;
+      case 'dormancy': return <Clock className="w-4 h-4 text-orange-500" />;
+      case 'portfolio': return <Lightbulb className="w-4 h-4 text-green-500" />;
+      default: return <Activity className="w-4 h-4" />;
+    }
+  };
+
   return (
     <div className="w-full h-full flex flex-col">
       {/* Top Bar: Filters & Actions */}
@@ -344,7 +355,10 @@ export function EntityNetwork() {
             {memoryFeed.map((item) => (
               <div key={item.id} className={`bg-background border border-border rounded-lg p-4 border-l-4 ${item.borderColor} shadow-sm animate-in slide-in-from-right fade-in duration-300`}>
                 <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-bold text-xs tracking-wider">{item.title}</h4>
+                  <div className="flex items-center gap-2">
+                    {getIconForType(item.type)}
+                    <h4 className="font-bold text-xs tracking-wider">{item.title}</h4>
+                  </div>
                   <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">{item.timeAgo}</span>
                 </div>
                 <p className="text-sm text-foreground/90 leading-relaxed mb-3">
