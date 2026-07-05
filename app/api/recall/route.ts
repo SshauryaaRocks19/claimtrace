@@ -48,6 +48,7 @@ export async function POST(req: Request) {
     // 3. Stream structured JSON back to the client
     const result = await streamObject({
       model: google('gemini-2.5-flash'),
+      abortSignal: req.signal,
       schema: z.object({
         risk_score: z.number().min(0).max(100).describe("0 to 100 risk score"),
         risk_level: z.enum(["LOW", "MEDIUM", "HIGH", "CRITICAL"]),
