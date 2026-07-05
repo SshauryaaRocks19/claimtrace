@@ -10,11 +10,13 @@
 
 **[Live Demo →](https://claimetrace.vercel.app)**
 
+<!-- TODO before submission: drop in 2-3 screenshots or a 15s GIF of the Network graph + the Stateless Mode toggle right here. Judges skim READMEs way faster than they click live links. -->
+
 ---
 
 ## The Problem
 
-SIU (Special Investigation Unit) fraud detection today runs on static rules engines - flag anything over $50,000, done. That catches lone wolves. It does **not** catch rings: the same attorney, the same clinic, the same suspiciously-familiar injury narrative, spread across a dozen claimants and eighteen months, where every individual claim looks completely clean in isolation.
+SIU (Special Investigation Unit) fraud detection today runs on static rules engines — flag anything over $50,000, done. That catches lone wolves. It does **not** catch rings: the same attorney, the same clinic, the same suspiciously-familiar injury narrative, spread across a dozen claimants and eighteen months, where every individual claim looks completely clean in isolation.
 
 That's not a detection-algorithm problem. It's a **memory** problem. Nobody's holding the full picture.
 
@@ -28,7 +30,7 @@ The fastest way to understand ClaimTrace is the **Stateless Mode** switch on the
 | **Why** | Evaluates the claim in a vacuum, zero history | Recalls 1,000 historical claims, surfaces 8 prior suspicious filings tied to the same attorney |
 | **Time to answer** | Instant | **< 60 seconds**, live-streamed |
 
-Flip the switch, submit the identical claim, and watch the score jump from 45 to 91 in front of you. That's not a UI trick - it's the same Gemini call with `cogneeRecall()` either wired in or bypassed. It's the whole thesis of the project made visible in one interaction.
+Flip the switch, resubmit the exact same claim, and watch the score jump from 45 to 91 right in front of you. It's the same Gemini call both times — the only thing that changes is whether `cogneeRecall()` actually runs. That one toggle is basically our whole pitch, in ten seconds.
 
 ---
 
@@ -138,6 +140,8 @@ All four memory lifecycle APIs are load-bearing - removing any one breaks someth
 * **`improve()`** - Fired on every adjuster decision (approve/flag/escalate) and every Memory Feed card interaction (confirmed/not relevant). This is the mechanism behind the 68%→91% accuracy climb.
 * **`forget()`** - Two surfaces: per-claim GDPR deletion with a pre-prune audit log entry (compliance), and "archive pattern" on a Memory Feed card, which forgets the *derived insight node* specifically - not the underlying claims - so a closed investigation stops resurfacing without destroying the historical record.
 
+**A note on scope:** this build is single-model (Gemini 2.5 Flash) and single-dataset by design — three days doesn't leave room for much else. But the actual fraud signal comes from cross-referencing four independent entity dimensions (attorney, clinic, shop, narrative language) against the whole graph at once, not from any one field in isolation. That's where we'd extend first with more time.
+
 ---
 
 ## Tech Stack
@@ -165,23 +169,23 @@ A custom Starry-Night dark theme (`#020617` background) built to feel like an in
 
 ## Business Model
 
-ClaimTrace is positioned as an **intelligence overlay**, not a core-system replacement. It sits alongside Guidewire, Duck Creek, or whatever claims-management system a carrier already runs, and plugs into existing SIU workflows via API.
+We're not trying to replace Guidewire or Duck Creek. ClaimTrace sits on top of whatever claims-management system a carrier already runs, and plugs into the SIU's existing workflow via API — an intelligence layer, not a core-system swap.
 
 **Pricing:**
 1. **Platform fee** - base annual subscription per carrier (tenant)
-2. **Per-seat licensing** - monthly fee per human investigator using the dashboard
+2. **Per-seat licensing** - monthly fee per investigator using the dashboard
 3. **API consumption** - tiered by claim volume routed through the Cognee memory layer per month
 
-This is deliberately the shape of an enterprise SaaS deal, not a research demo.
+Basically the pricing shape of a real enterprise SaaS deal, not something we made up for the demo.
 
 ---
 
 ## Roadmap
 
-- **Live entity resolution on the demo animation** - the current network-screen "simulate new claim" flow uses string-matching heuristics (e.g. attorney name containing "Kaplan" routes to Ring A) rather than a live Cognee resolution call, to keep the animation latency-free. Swapping in live resolution is the next step once that latency budget is solved.
-- **Streamed Memory Feed on first load** - the five historical insights currently pre-populate from a mocked cache to avoid page-load latency, while live queries run in the background; the goal is to remove the mock entirely as query speed improves.
-- **Server-side graph filtering** - ring isolation is currently client-side React state, fine at 1,000 nodes, but will need server-side pagination through Cognee at production scale.
-- **Multi-tenancy & auth** - strict tenant isolation (Clerk or Kinde) so, e.g., State Farm's graph memory never touches Geico's. Role-based access control differentiating Level 1 Triage Adjusters (risk score only) from Level 3 SIU Investigators (full entity network access).
+- **Real entity resolution in the live demo animation** — right now the "simulate new claim" flow on `/network` cheats a bit: it string-matches on the attorney name (e.g. anything containing "Kaplan" routes to Ring A) instead of calling Cognee live, just so the animation doesn't stutter. Next step is swapping that for a real resolution call once we get the latency down.
+- **Drop the mocked Memory Feed on first load** — the five insights shown on page load are cached/mocked so the page doesn't feel slow, while real recall queries fire in the background. Want to kill the mock entirely once query speed catches up.
+- **Server-side graph filtering** — ring isolation is just React state right now, fine at 1,000 nodes, but won't hold up at real scale. Needs server-side pagination through Cognee eventually.
+- **Multi-tenancy & auth** — proper tenant isolation (probably Clerk or Kinde) so State Farm's graph never touches Geico's, plus role-based access so a Level 1 triage adjuster sees just the risk score while a Level 3 SIU investigator gets the full entity network.
 
 ---
 
