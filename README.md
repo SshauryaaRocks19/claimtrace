@@ -18,7 +18,7 @@ SIU (Special Investigation Unit) fraud detection today runs on static rules engi
 
 That's not a detection-algorithm problem. It's a **memory** problem. Nobody's holding the full picture.
 
-## The Proof, in One Toggle
+## The Proof
 
 The fastest way to understand ClaimTrace is the **Stateless Mode** switch on the New Claim screen.
 
@@ -31,8 +31,6 @@ The fastest way to understand ClaimTrace is the **Stateless Mode** switch on the
 Flip the switch, submit the identical claim, and watch the score jump from 45 to 91 in front of you. That's not a UI trick — it's the same Gemini call with `cogneeRecall()` either wired in or bypassed. It's the whole thesis of the project made visible in one interaction.
 
 ---
-
-## Architecture
 
 ## Architecture
 
