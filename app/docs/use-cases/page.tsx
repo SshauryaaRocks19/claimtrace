@@ -1,6 +1,6 @@
 export default function UseCasesPage() {
   return (
-    <div className="space-y-8 animate-in slide-in-from-bottom-4 fade-in duration-500">
+    <div className="space-y-8 ">
       <div>
         <h1 className="text-4xl font-bold tracking-tight mb-4 text-foreground">Core Use Cases</h1>
         <p className="text-xl text-muted-foreground leading-relaxed">

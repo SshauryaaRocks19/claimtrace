@@ -42,6 +42,7 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
             );
           })}
         </nav>
+        </div>
       </aside>
 
       {/* Main Content Area */}
