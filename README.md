@@ -10,7 +10,7 @@
 
 **[Live Demo →](https://traceclaim.vercel.app)**
 
-<!-- TODO before submission: drop in 2-3 screenshots or a 15s GIF of the Network graph + the Stateless Mode toggle right here. Judges skim READMEs way faster than they click live links. -->
+<img width="1464" height="833" alt="Screenshot 2026-07-05 at 9 07 02 PM" src="https://github.com/user-attachments/assets/a9fe74ff-34d7-4a3e-8e2f-23c66956b618" />
 
 ---
 
@@ -120,11 +120,15 @@ A full-screen React Flow canvas. Three fraud rings are visible the moment the pa
 
 Nodes are glassmorphic cards (`bg-card/80 backdrop-blur-md`) with color-coded left borders (red = attorney, orange = clinic, yellow = shop; red/yellow fill = critical/flagged claim). Investigators drag, zoom, and isolate rings via the filter bar to visually confirm dense clusters of bad-actor activity.
 
+<img width="1464" height="833" alt="Screenshot 2026-07-05 at 9 05 53 PM" src="https://github.com/user-attachments/assets/950bdf1d-0a55-4042-a907-b7ed367638d5" />
+
 ### 2. Memory Accuracy Timeline
 An animated Recharts line graph at the top of the Claims Queue, tracking adjuster agreement with the AI's risk calls over a 4-week window: **68% → 91%**, with a pulsing Learning Active indicator. This is the `improve()` API's compounding effect made visible - the system isn't a static model scoring in isolation, it's a feed that gets sharper every time a human acts on it.
 
 ### 3. The Memory Feed
 Runs alongside the graph like a senior SIU investigator with 10 years on the job. Three parallel recall queries surface: ring acceleration, dormancy breaks, and emerging attorney-clinic pairings that don't match a known ring yet.
+
+<img width="1464" height="833" alt="Screenshot 2026-07-05 at 9 06 32 PM" src="https://github.com/user-attachments/assets/a497a0c7-1c34-4b82-b64d-2bc1fd64e0aa" />
 
 ### 4. Streaming Risk Briefs (`/claims/new`)
 Split layout - claim form on the left, risk brief streaming in live on the right as Gemini processes the recalled context. Exportable as PDF (`jspdf` + `html-to-image`) for the claim file. Adjuster decision buttons at the bottom call `improve()` directly.
