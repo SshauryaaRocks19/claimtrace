@@ -41,16 +41,16 @@ export function MemoryAccuracyChart() {
                 bottom: 0,
               }}
             >
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted-foreground))" opacity={0.2} vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#4b5563" opacity={0.2} vertical={false} />
               <XAxis 
                 dataKey="week" 
-                stroke="hsl(var(--muted-foreground))" 
+                stroke="#9ca3af" 
                 fontSize={12} 
                 tickLine={false} 
                 axisLine={false} 
               />
               <YAxis 
-                stroke="hsl(var(--muted-foreground))" 
+                stroke="#9ca3af" 
                 fontSize={12} 
                 tickLine={false} 
                 axisLine={false} 
@@ -59,21 +59,21 @@ export function MemoryAccuracyChart() {
               />
               <Tooltip 
                 contentStyle={{ 
-                  backgroundColor: 'hsl(var(--card))', 
-                  borderColor: 'hsl(var(--border))',
+                  backgroundColor: '#1e293b', 
+                  borderColor: '#334155',
                   borderRadius: '8px',
-                  color: 'hsl(var(--foreground))'
+                  color: '#f8fafc'
                 }}
-                itemStyle={{ color: 'hsl(var(--primary))' }}
+                itemStyle={{ color: '#3b82f6' }}
                 formatter={(value: number) => [`${value}%`, 'Accuracy']}
               />
               <Line 
                 type="monotone" 
                 dataKey="accuracy" 
-                stroke="hsl(var(--primary))" 
+                stroke="#3b82f6" 
                 strokeWidth={3}
-                dot={{ r: 4, fill: "hsl(var(--background))", strokeWidth: 2 }}
-                activeDot={{ r: 6, fill: "hsl(var(--primary))" }}
+                dot={{ r: 4, fill: "#0f172a", strokeWidth: 2 }}
+                activeDot={{ r: 6, fill: "#3b82f6" }}
                 animationDuration={1500}
               />
             </LineChart>

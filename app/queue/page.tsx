@@ -5,7 +5,7 @@ import { ClaimsTable } from "@/components/ClaimsTable";
 import { MemoryAccuracyChart } from "@/components/MemoryAccuracyChart";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Plus, Network, Upload } from "lucide-react";
+import { Plus, Network, Upload, LineChart as LineChartIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { RiskBriefPanel } from "@/components/RiskBriefPanel";
 import { Claim } from "@/lib/types";
 import Papa from "papaparse";
@@ -14,6 +14,7 @@ export default function QueuePage() {
   const [investigatingClaim, setInvestigatingClaim] = useState<Claim | null>(null);
   const [uploadedClaims, setUploadedClaims] = useState<Claim[]>([]);
   const [isImporting, setIsImporting] = useState(false);
+  const [isChartVisible, setIsChartVisible] = useState(false);
 
   const handleInvestigate = (claim: Claim) => {
     setInvestigatingClaim(claim);
@@ -133,7 +134,23 @@ export default function QueuePage() {
       </div>
       
       <div className="mb-8">
-        <MemoryAccuracyChart />
+        <Button 
+          variant="outline" 
+          onClick={() => setIsChartVisible(!isChartVisible)}
+          className="w-full flex items-center justify-between mb-4 border-border/50 text-muted-foreground hover:text-foreground"
+        >
+          <span className="flex items-center gap-2">
+            <LineChartIcon className="w-4 h-4" />
+            Memory Accuracy Timeline
+          </span>
+          {isChartVisible ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </Button>
+        
+        {isChartVisible && (
+          <div className="animate-in slide-in-from-top-4 fade-in duration-300">
+            <MemoryAccuracyChart />
+          </div>
+        )}
       </div>
 
       <ClaimsTable onInvestigate={handleInvestigate} additionalClaims={uploadedClaims} />
