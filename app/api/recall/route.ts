@@ -8,24 +8,42 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { claim } = body;
 
-    // 1. Call Cognee to get historical similar claims
-    const queryText = `Attorney: ${claim.attorneyName}, Clinic: ${claim.medicalProvider}, State: ${claim.incidentState}. Narrative: ${claim.injuryNarrative}`;
-    const historicalClaims = await cogneeRecall(queryText);
+    let historicalClaims: any[] = [];
+    let prompt = "";
 
-    // 2. Build Prompt for Gemini
-    const prompt = `
-      You are an expert insurance fraud investigator. 
-      Analyze the following NEW claim and compare it against the RECALLED historical claims from our database.
-      Look for shared entities (attorneys, clinics, repair shops) and similar narrative patterns.
+    if (claim.isStatelessMode) {
+      prompt = `
+        You are a standard, legacy insurance fraud rules engine. 
+        Analyze the following NEW claim WITHOUT any historical context or memory.
+        You cannot see past claims, entity histories, or rings. You only have this surface data.
+        Provide a generic, shallow risk assessment based solely on standard industry red flags (like high claim amounts or vague narratives). 
+        Keep the score in the 40-50 range (MEDIUM risk).
+        Do NOT invent entity alerts. Return an empty array for entity_alerts and pattern_matches.
+        Keep the summary extremely brief and generic.
 
-      NEW CLAIM:
-      ${JSON.stringify(claim, null, 2)}
+        NEW CLAIM:
+        ${JSON.stringify(claim, null, 2)}
+      `;
+    } else {
+      // 1. Call Cognee to get historical similar claims
+      const queryText = `Attorney: ${claim.attorneyName}, Clinic: ${claim.medicalProvider}, State: ${claim.incidentState}. Narrative: ${claim.injuryNarrative}`;
+      historicalClaims = await cogneeRecall(queryText);
 
-      RECALLED HISTORICAL CLAIMS:
-      ${JSON.stringify(historicalClaims, null, 2)}
+      // 2. Build Prompt for Gemini
+      prompt = `
+        You are an expert insurance fraud investigator. 
+        Analyze the following NEW claim and compare it against the RECALLED historical claims from our database.
+        Look for shared entities (attorneys, clinics, repair shops) and similar narrative patterns.
 
-      Assess the risk of fraud based on connections to known fraud rings and suspicious patterns.
-    `;
+        NEW CLAIM:
+        ${JSON.stringify(claim, null, 2)}
+
+        RECALLED HISTORICAL CLAIMS:
+        ${JSON.stringify(historicalClaims, null, 2)}
+
+        Assess the risk of fraud based on connections to known fraud rings and suspicious patterns.
+      `;
+    }
 
     // 3. Stream structured JSON back to the client
     const result = await streamObject({

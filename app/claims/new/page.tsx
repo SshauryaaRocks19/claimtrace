@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ClaimForm } from "@/components/ClaimForm";
 import { RiskBrief } from "@/components/RiskBrief";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import Link from "next/link";
 import { ArrowLeft, Check, X, ShieldAlert } from "lucide-react";
 import { experimental_useObject as useObject } from "@ai-sdk/react";
@@ -18,6 +19,7 @@ export default function NewClaimPage() {
   const [claimId, setClaimId] = useState<string>("CLM-" + Math.floor(Math.random() * 9000 + 1000));
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedData, setSubmittedData] = useState<any>(null);
+  const [isStatelessMode, setIsStatelessMode] = useState(false);
   const briefRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   
@@ -36,7 +38,7 @@ export default function NewClaimPage() {
   const onSubmitClaim = (claimData: any) => {
     setSubmittedData(claimData);
     setIsSubmitted(true);
-    submit({ claim: { id: claimId, ...claimData } });
+    submit({ claim: { id: claimId, isStatelessMode, ...claimData } });
   };
 
   const handleDecision = async (decision: string) => {
@@ -215,9 +217,27 @@ export default function NewClaimPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="w-full flex justify-center"
+            className="w-full flex flex-col items-center gap-6"
           >
-            <ClaimForm onSubmit={onSubmitClaim} isLoading={isLoading} />
+            <div className="w-full max-w-[1200px] bg-card/60 backdrop-blur-sm border border-border/50 rounded-xl p-6 flex items-center justify-between shadow-sm">
+              <div>
+                <h3 className="font-bold text-foreground">Stateless Mode (Disable Memory)</h3>
+                <p className="text-sm text-muted-foreground mt-1">Bypass Cognee memory and evaluate claim with zero historical context.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className={`text-sm font-medium ${isStatelessMode ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  {isStatelessMode ? 'MEMORY DISABLED' : 'MEMORY ACTIVE'}
+                </span>
+                <Switch 
+                  checked={isStatelessMode} 
+                  onCheckedChange={setIsStatelessMode} 
+                  className="data-[state=checked]:bg-destructive"
+                />
+              </div>
+            </div>
+            <div className="w-full flex justify-center">
+              <ClaimForm onSubmit={onSubmitClaim} isLoading={isLoading} />
+            </div>
           </motion.div>
         ) : (
           <motion.div 
@@ -296,7 +316,12 @@ export default function NewClaimPage() {
                 </div>
               )}
 
-              <div ref={briefRef} className="flex-1">
+              <div ref={briefRef} className="flex-1 relative">
+                {isStatelessMode && (
+                  <div className="absolute top-4 right-4 z-10 bg-destructive text-destructive-foreground text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-destructive-foreground/20 animate-pulse">
+                    STATELESS MODE
+                  </div>
+                )}
                 <RiskBrief data={object as any} isLoading={isLoading || (isSubmitted && !object)} />
               </div>
             </div>

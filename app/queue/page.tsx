@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ClaimsTable } from "@/components/ClaimsTable";
+import { MemoryAccuracyChart } from "@/components/MemoryAccuracyChart";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus, Network, Upload } from "lucide-react";
@@ -131,6 +132,10 @@ export default function QueuePage() {
         </div>
       </div>
       
+      <div className="mb-8">
+        <MemoryAccuracyChart />
+      </div>
+
       <ClaimsTable onInvestigate={handleInvestigate} additionalClaims={uploadedClaims} />
 
       <RiskBriefPanel 
