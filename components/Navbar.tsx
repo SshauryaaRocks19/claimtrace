@@ -13,6 +13,7 @@ export function Navbar() {
     { label: "Dashboard", href: "/queue" },
     { label: "Graph Network", href: "/network" },
     { label: "Submit Claim", href: "/claims/new" },
+    { label: "Documentation", href: "/docs" },
   ];
 
   return (
