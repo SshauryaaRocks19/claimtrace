@@ -183,7 +183,7 @@ const GooeyNav = ({
   return (
     <div className="gooey-nav-container" ref={containerRef}>
       <svg width="0" height="0" style={{ position: "absolute", visibility: "hidden" }}>
-        <filter id="gooey-filter">
+        <filter id="gooey-filter" colorInterpolationFilters="sRGB">
           <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
           <feColorMatrix
             in="blur"
