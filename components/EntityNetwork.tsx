@@ -77,7 +77,7 @@ function CustomNode({ data }: NodeProps) {
 
   return (
     <div className={`border-2 rounded-lg flex items-center justify-center text-center backdrop-blur-sm ${bgClass} ${sizeClass} ${pulseClass} transition-all`}>
-      {data.label}
+      {data.label as string}
     </div>
   );
 }

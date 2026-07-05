@@ -65,7 +65,7 @@ export function MemoryAccuracyChart() {
                   color: '#f8fafc'
                 }}
                 itemStyle={{ color: '#3b82f6' }}
-                formatter={(value: number) => [`${value}%`, 'Accuracy']}
+                formatter={(value: any) => [`${value}%`, 'Accuracy']}
               />
               <Line 
                 type="monotone" 
