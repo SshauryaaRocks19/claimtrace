@@ -17,12 +17,13 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row pt-24 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row pt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 shrink-0 p-6 md:border-r border-border/50 md:sticky md:top-24 md:h-[calc(100vh-6rem)] overflow-y-auto">
-        <h2 className="text-lg font-bold mb-6 text-foreground tracking-tight">Documentation</h2>
-        <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-4 md:pb-0">
-          {sidebarLinks.map((link) => {
+      <aside className="w-full md:w-64 shrink-0 py-6 md:pr-6 md:border-r border-border/50">
+        <div className="sticky top-24 h-auto md:h-[calc(100vh-6rem)] overflow-y-auto">
+          <h2 className="text-lg font-bold mb-4 text-foreground tracking-tight">Documentation</h2>
+          <nav className="flex flex-col gap-2">
+            {sidebarLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
@@ -44,8 +45,8 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 md:p-12 lg:p-16">
-        <div className="max-w-3xl prose-headings:font-bold prose-h1:text-4xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-a:text-primary prose-li:text-muted-foreground">
+      <main className="flex-1 py-6 md:pl-8 lg:pl-12 overflow-x-hidden">
+        <div className="max-w-3xl">
           {children}
         </div>
       </main>
