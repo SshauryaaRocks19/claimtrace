@@ -227,10 +227,9 @@ export default function Home() {
                   <span className="text-muted-foreground font-medium">Risk Score</span>
                   <span className="text-2xl font-bold text-foreground">43 / 100 (Medium)</span>
                 </div>
-                <div className="space-y-4">
-                  <div className="h-4 bg-muted rounded w-3/4"></div>
-                  <div className="h-4 bg-muted rounded w-full"></div>
-                  <div className="h-4 bg-muted rounded w-5/6"></div>
+                <div className="p-6 rounded-xl border border-border bg-muted/20 space-y-4">
+                  <p className="text-base text-muted-foreground leading-relaxed"><strong className="text-foreground">Entity Check:</strong> No isolated red flags detected for involved entities.</p>
+                  <p className="text-base text-muted-foreground leading-relaxed"><strong className="text-foreground">Pattern Match:</strong> Insufficient context to detect multi-claim narrative patterns.</p>
                 </div>
               </div>
             </motion.div>
@@ -308,7 +307,7 @@ export default function Home() {
       <footer className="relative z-20 border-t border-border/50 py-12 text-center text-muted-foreground bg-background">
         <div className="max-w-7xl mx-auto px-6 flex flex-col items-center justify-center gap-4">
           <ShieldAlert className="w-8 h-8 opacity-20" />
-          <p className="text-sm font-medium">Built for the WeMakeDevs × Cognee Hackathon.</p>
+          <p className="text-sm font-medium">Built for modern Special Investigation Units.</p>
           <p className="text-xs opacity-50">Licensed under Apache 2.0</p>
         </div>
       </footer>
