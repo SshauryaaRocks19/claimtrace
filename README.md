@@ -8,7 +8,7 @@
 [![Cognee Cloud](https://img.shields.io/badge/Cognee-Cloud-orange)](https://cognee.ai)
 [![Gemini 2.5 Flash](https://img.shields.io/badge/Gemini-2.5_Flash-4B8BBE)](https://deepmind.google/technologies/gemini/)
 
-**[Live Demo →](https://claimetrace.vercel.app)**
+**[Live Demo →](https://traceclaim.vercel.app)**
 
 <!-- TODO before submission: drop in 2-3 screenshots or a 15s GIF of the Network graph + the Stateless Mode toggle right here. Judges skim READMEs way faster than they click live links. -->
 
