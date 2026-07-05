@@ -19,7 +19,7 @@ export default function NewClaimPage() {
   const [claimId, setClaimId] = useState<string>("CLM-" + Math.floor(Math.random() * 9000 + 1000));
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedData, setSubmittedData] = useState<any>(null);
-  const [isStatelessMode, setIsStatelessMode] = useState(false);
+  const [isMemoryActive, setIsMemoryActive] = useState(true);
   const briefRef = useRef<HTMLDivElement>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   
@@ -38,7 +38,7 @@ export default function NewClaimPage() {
   const onSubmitClaim = (claimData: any) => {
     setSubmittedData(claimData);
     setIsSubmitted(true);
-    submit({ claim: { id: claimId, isStatelessMode, ...claimData } });
+    submit({ claim: { id: claimId, isStatelessMode: !isMemoryActive, ...claimData } });
   };
 
   const handleDecision = async (decision: string) => {
@@ -221,18 +221,21 @@ export default function NewClaimPage() {
           >
             <div className="w-full max-w-[1200px] bg-card/60 backdrop-blur-sm border border-border/50 rounded-xl p-6 flex items-center justify-between shadow-sm">
               <div>
-                <h3 className="font-bold text-foreground">Stateless Mode (Disable Memory)</h3>
-                <p className="text-sm text-muted-foreground mt-1">Bypass Cognee memory and evaluate claim with zero historical context.</p>
+                <h3 className="font-bold text-foreground">Cognee Memory Layer</h3>
+                <p className="text-sm text-muted-foreground mt-1">Toggle to compare a legacy stateless evaluation against graph-vector memory.</p>
               </div>
               <div className="flex items-center gap-3">
-                <span className={`text-sm font-medium ${isStatelessMode ? 'text-destructive' : 'text-muted-foreground'}`}>
-                  {isStatelessMode ? 'MEMORY DISABLED' : 'MEMORY ACTIVE'}
+                <span className={`text-sm font-medium ${!isMemoryActive ? 'text-destructive' : 'text-muted-foreground'}`}>
+                  Memory Off
                 </span>
                 <Switch 
-                  checked={isStatelessMode} 
-                  onCheckedChange={setIsStatelessMode} 
-                  className="data-[state=checked]:bg-destructive"
+                  checked={isMemoryActive} 
+                  onCheckedChange={setIsMemoryActive} 
+                  className="data-[state=checked]:bg-primary"
                 />
+                <span className={`text-sm font-medium ${isMemoryActive ? 'text-primary' : 'text-muted-foreground'}`}>
+                  Memory On
+                </span>
               </div>
             </div>
             <div className="w-full flex justify-center">
@@ -317,7 +320,7 @@ export default function NewClaimPage() {
               )}
 
               <div ref={briefRef} className="flex-1 relative">
-                {isStatelessMode && (
+                {!isMemoryActive && (
                   <div className="absolute top-4 right-4 z-10 bg-destructive text-destructive-foreground text-xs font-bold px-3 py-1 rounded-full shadow-lg border border-destructive-foreground/20 animate-pulse">
                     STATELESS MODE
                   </div>
