@@ -182,6 +182,18 @@ const GooeyNav = ({
 
   return (
     <div className="gooey-nav-container" ref={containerRef}>
+      <svg width="0" height="0" style={{ position: "absolute", visibility: "hidden" }}>
+        <filter id="gooey-filter">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
+          <feColorMatrix
+            in="blur"
+            mode="matrix"
+            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 15 -7"
+            result="gooey"
+          />
+          <feComposite in="SourceGraphic" in2="gooey" operator="atop" />
+        </filter>
+      </svg>
       <nav>
         <ul ref={navRef}>
           {items.map((item, index) => (
