@@ -370,31 +370,32 @@ export function EntityNetwork() {
   return (
     <div className="w-full h-full flex flex-col">
       {/* Top Bar: Filters & Actions */}
-      <div className="p-4 border-b border-border bg-card flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Layers className="w-5 h-5 text-muted-foreground mr-2" />
+      <div className="p-4 border-b border-border bg-card flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-hide">
+          <Layers className="w-5 h-5 text-muted-foreground mr-2 shrink-0" />
           {["ALL", "A", "B", "C", "NEW"].map(filter => (
             <Button 
               key={filter} 
               variant={activeFilter === filter ? "default" : "outline"}
               size="sm"
               onClick={() => setActiveFilter(filter)}
+              className="shrink-0"
             >
               {filter === "ALL" ? "All" : filter === "NEW" ? "Live Claim" : `Ring ${filter}`}
             </Button>
           ))}
         </div>
-        <div className="flex gap-2">
-          <Button variant="default" size="sm" onClick={() => setIsAnalysisModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
+        <div className="flex gap-2 w-full md:w-auto">
+          <Button variant="default" size="sm" onClick={() => setIsAnalysisModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-white flex-1 md:flex-none">
             <Play className="w-4 h-4 mr-2" /> Analyze New Claim
           </Button>
-          <Button variant="ghost" size="icon" onClick={fetchData}><RefreshCw className="w-4 h-4" /></Button>
+          <Button variant="ghost" size="icon" onClick={fetchData} className="shrink-0"><RefreshCw className="w-4 h-4" /></Button>
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden relative bg-background">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative bg-background">
         {/* React Flow Canvas */}
-        <div className="flex-1 h-full">
+        <div className="flex-1 h-1/2 md:h-full relative min-h-[300px]">
           <ReactFlowProvider>
             <FitViewOnFilter activeFilter={activeFilter} />
             <ReactFlow
@@ -412,7 +413,7 @@ export function EntityNetwork() {
               <MiniMap 
                 nodeColor={(node) => (node.data.type === 'attorney' ? '#ef4444' : node.data.type === 'clinic' ? '#f97316' : '#64748b')} 
                 maskColor="rgba(0, 0, 0, 0.6)"
-                className="!bg-background !border-border"
+                className="!bg-background !border-border hidden md:block"
               />
               <Background color="var(--border)" gap={20} size={1} />
             </ReactFlow>
@@ -420,12 +421,12 @@ export function EntityNetwork() {
         </div>
 
         {/* Unified Right Panel (Tabs) */}
-        <div className="w-[400px] h-full bg-card/95 backdrop-blur-xl border-l border-border flex flex-col relative z-20 shadow-2xl">
+        <div className="w-full md:w-[400px] h-1/2 md:h-full bg-card/95 backdrop-blur-xl border-t md:border-t-0 md:border-l border-border flex flex-col relative z-20 shadow-2xl">
           
           {/* Tab Header */}
           <div className="flex border-b border-border bg-muted/30">
             <button 
-              className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors ${activeTab === 'feed' ? 'bg-card text-primary border-b-2 border-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`flex-1 py-3 md:py-4 text-xs font-bold uppercase tracking-wider transition-colors ${activeTab === 'feed' ? 'bg-card text-primary border-b-2 border-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
               onClick={() => setActiveTab('feed')}
             >
               <div className="flex items-center justify-center gap-2">
@@ -434,7 +435,7 @@ export function EntityNetwork() {
               </div>
             </button>
             <button 
-              className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors ${activeTab === 'details' ? 'bg-card text-primary border-b-2 border-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
+              className={`flex-1 py-3 md:py-4 text-xs font-bold uppercase tracking-wider transition-colors ${activeTab === 'details' ? 'bg-card text-primary border-b-2 border-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
               onClick={() => setActiveTab('details')}
               disabled={!selectedNodeData && activeTab !== 'details'}
             >

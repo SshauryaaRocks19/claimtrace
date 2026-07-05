@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 
 export default function NetworkPage() {
   return (
-    <div className="container mx-auto py-10 px-4 max-w-6xl h-screen flex flex-col">
+    <div className="container mx-auto pt-24 pb-4 md:py-10 md:pt-32 px-4 max-w-6xl h-[100dvh] flex flex-col">
       <div className="flex items-center gap-4 mb-6">
         <Link href="/queue">
           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground hover:bg-muted">
