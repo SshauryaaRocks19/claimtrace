@@ -6,24 +6,35 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+import { createHash } from 'crypto';
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { claim } = body;
 
-    // --- DEMO CACHE INTERCEPTOR ---
-    // Check if we have pre-computed this claim to save Gemini API quota.
+    // --- DYNAMIC WRITE-THROUGH CACHE ---
+    // Generate a deterministic hash based on core claim details (ignoring random IDs)
+    const claimHashStr = `${claim.attorneyName}|${claim.medicalProvider}|${claim.incidentState}|${claim.totalClaimAmount}|${claim.injuryNarrative}`;
+    const claimHash = createHash('sha256').update(claimHashStr).digest('hex');
+
     const cachePath = path.join(process.cwd(), "data", "demo_cache.json");
+    let cacheData: any = {};
+
     if (fs.existsSync(cachePath)) {
-      const cache = JSON.parse(fs.readFileSync(cachePath, "utf-8"));
-      if (cache[claim.id]) {
-        console.log(`[Cache Hit] Returning pre-computed evaluation for ${claim.id}`);
-        // Simulate "thinking" time so the UI spinners look authentic during the demo
-        await new Promise(r => setTimeout(r, 2500));
-        return NextResponse.json(cache[claim.id]);
+      try {
+        cacheData = JSON.parse(fs.readFileSync(cachePath, "utf-8"));
+      } catch (e) {
+        console.error("Failed to parse cache", e);
       }
     }
-    // ------------------------------
+
+    if (cacheData[claimHash]) {
+      console.log(`[Cache Hit] Returning cached evaluation for ${claimHash}`);
+      await new Promise(r => setTimeout(r, 800)); // Short delay for realism
+      return NextResponse.json(cacheData[claimHash]);
+    }
+    // -----------------------------------
 
     // 1. Call Cognee to get historical similar claims
     // Use the explicit Fraud Reported query
@@ -58,6 +69,18 @@ export async function POST(req: Request) {
       }),
       prompt: prompt,
     });
+
+    // Write the new evaluation back to the cache
+    cacheData[claimHash] = object;
+    try {
+      if (!fs.existsSync(path.dirname(cachePath))) {
+        fs.mkdirSync(path.dirname(cachePath), { recursive: true });
+      }
+      fs.writeFileSync(cachePath, JSON.stringify(cacheData, null, 2));
+      console.log(`[Cache Write] Saved new evaluation for ${claimHash}`);
+    } catch (e) {
+      console.error("Failed to write to cache", e);
+    }
 
     return NextResponse.json(object);
   } catch (error) {
