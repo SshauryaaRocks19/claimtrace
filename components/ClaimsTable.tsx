@@ -23,7 +23,12 @@ export function ClaimsTable({
       try {
         const res = await fetch("/api/claims");
         const data = await res.json();
-        setClaims(data);
+        if (Array.isArray(data)) {
+          setClaims(data);
+        } else {
+          console.error("API did not return an array:", data);
+          setClaims([]);
+        }
       } catch (error) {
         console.error("Failed to fetch claims:", error);
       } finally {
