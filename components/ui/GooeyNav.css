@@ -69,7 +69,8 @@
 }
 
 .gooey-nav-container nav ul li:focus-within:has(:focus-visible) {
-  box-shadow: 0 0 0.5px 1.5px var(--foreground);
+  outline: 2px solid var(--primary);
+  outline-offset: 4px;
 }
 
 .gooey-nav-container nav ul li::after {
@@ -117,25 +118,7 @@
 }
 
 .gooey-nav-container .effect.filter {
-  filter: blur(7px) contrast(100) blur(0);
-}
-
-:is(.dark) .gooey-nav-container .effect.filter {
-  mix-blend-mode: lighten;
-}
-
-
-:root[class~="light"] .gooey-nav-container .effect.filter,
-:root:not(.dark) .gooey-nav-container .effect.filter {
-  mix-blend-mode: darken;
-}
-
-.gooey-nav-container .effect.filter::before {
-  content: '';
-  position: absolute;
-  inset: -75px;
-  z-index: -2;
-  background: var(--background);
+  filter: url('#gooey-filter');
 }
 
 .gooey-nav-container .effect.filter::after {
