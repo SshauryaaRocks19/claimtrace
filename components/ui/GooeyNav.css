@@ -118,7 +118,25 @@
 }
 
 .gooey-nav-container .effect.filter {
-  filter: url('#gooey-filter');
+  filter: blur(7px) contrast(100) blur(0);
+}
+
+:is(.dark) .gooey-nav-container .effect.filter {
+  mix-blend-mode: lighten;
+}
+
+
+:root[class~="light"] .gooey-nav-container .effect.filter,
+:root:not(.dark) .gooey-nav-container .effect.filter {
+  mix-blend-mode: darken;
+}
+
+.gooey-nav-container .effect.filter::before {
+  content: '';
+  position: absolute;
+  inset: -75px;
+  z-index: -2;
+  background: var(--background);
 }
 
 .gooey-nav-container .effect.filter::after {
