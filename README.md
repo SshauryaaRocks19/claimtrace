@@ -119,7 +119,7 @@ A full-screen React Flow canvas. Three fraud rings are visible the moment the pa
 Nodes are glassmorphic cards (`bg-card/80 backdrop-blur-md`) with color-coded left borders (red = attorney, orange = clinic, yellow = shop; red/yellow fill = critical/flagged claim). Investigators drag, zoom, and isolate rings via the filter bar to visually confirm dense clusters of bad-actor activity.
 
 ### 2. Memory Accuracy Timeline
-An animated Recharts line graph at the top of the Claims Queue, tracking adjuster agreement with the AI's risk calls over a 4-week window: **68% → 91%**, with a pulsing "Learning Active" indicator. This is the `improve()` API's compounding effect made visible - the system isn't a static model scoring in isolation, it's a feed that gets sharper every time a human acts on it.
+An animated Recharts line graph at the top of the Claims Queue, tracking adjuster agreement with the AI's risk calls over a 4-week window: **68% → 91%**, with a pulsing Learning Active indicator. This is the `improve()` API's compounding effect made visible - the system isn't a static model scoring in isolation, it's a feed that gets sharper every time a human acts on it.
 
 ### 3. The Memory Feed
 Runs alongside the graph like a senior SIU investigator with 10 years on the job. Three parallel recall queries surface: ring acceleration, dormancy breaks, and emerging attorney-clinic pairings that don't match a known ring yet.
@@ -155,7 +155,7 @@ All four memory lifecycle APIs are load-bearing - removing any one breaks someth
 
 ## The UI
 
-A custom "Starry-Night" dark theme (`#020617` background) built to feel like an investigator's console, not a spreadsheet:
+A custom Starry-Night dark theme (`#020617` background) built to feel like an investigator's console, not a spreadsheet:
 
 - **Entity Nodes**: Glassmorphic cards instead of solid boxes, color-coded left-border accents by entity type - readable at a glance without collapsing into a 2012 flowchart.
 - **GooeyNav**: A liquid gooey navbar animation on menu toggles, built with a pure SVG `<filter>` color matrix rather than CSS blur, so text stays legible with no blur bleed.
