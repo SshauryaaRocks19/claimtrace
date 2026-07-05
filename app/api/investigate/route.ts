@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       prompt: systemPrompt,
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error("API Error in /investigate:", error);
     return new Response(JSON.stringify({ error: "Failed to investigate claim" }), { status: 500 });
